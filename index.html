@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Мой Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+        
+        /* Навигация */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--tg-theme-hint-color, #999);
+            font-size: 14px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .nav-btn.active {
+            color: var(--tg-theme-button-color, #3390ec);
+            font-weight: bold;
+        }
+        
+        /* Экраны */
+        .screen {
+            display: none;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        /* Заголовки */
+        h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--tg-theme-text-color, #000);
+        }
+        
+        h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            margin-top: 20px;
+        }
+        
+        /* Карточки */
+        .card {
+            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .card p {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+        
+        /* Кнопки */
+        .btn {
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+        
+        .btn:active {
+            opacity: 0.7;
+        }
+        
+        .btn-small {
+            padding: 10px 16px;
+            font-size: 14px;
+            width: auto;
+        }
+        
+        /* Форма */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: var(--tg-theme-bg-color, #fff);
+            color: var(--tg-theme-text-color, #000);
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* Каталог */
+        .product {
+            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        
+        .product-price {
+            color: var(--tg-theme-button-color, #3390ec);
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .product-desc {
+            font-size: 13px;
+            color: var(--tg-theme-hint-color, #999);
+            margin-top: 4px;
+        }
+        
+        /* Уведомление */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        /* Статус */
+        .status {
+            background-color: #000;
+            color: #0f0;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 15px;
+            text-align: left;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Уведомление -->
+    <div class="toast" id="toast">Отправлено!</div>
+
+    <!-- ЭКРАН 1: Главная -->
+    <div class="screen active" id="screen-home">
+        <h1 id="greeting">Привет!</h1>
+        <div class="card">
+            <p>Добро пожаловать в ваш первый Telegram Mini App!</p>
+            <p>Это базовый шаблон для дальнейшей разработки.</p>
+        </div>
+        
+        <h2>Возможности шаблона:</h2>
+        <div class="card">
+            <p>✅ Многостраничная навигация</p>
+            <p>✅ Форма обратной связи</p>
+            <p>✅ Каталог товаров/услуг</p>
+            <p>✅ Отправка данных боту</p>
+        </div>
+        
+        <button class="btn" onclick="sendTest()">Отправить тестовые данные</button>
+        
+        <div class="status" id="log">Готов к работе...</div>
+    </div>
+
+    <!-- ЭКРАН 2: Форма связи -->
+    <div class="screen" id="screen-form">
+        <h1>Связаться с нами</h1>
+        <div class="card">
+            <p>Заполните форму, и мы свяжемся с вами в ближайшее время.</p>
+        </div>
+        
+        <div class="form-group">
+            <label>Ваше имя</label>
+            <input type="text" id="form-name" placeholder="Иван Иванов">
+        </div>
+        
+        <div class="form-group">
+            <label>Телефон</label>
+            <input type="tel" id="form-phone" placeholder="+7 (999) 123-45-67">
+        </div>
+        
+        <div class="form-group">
+            <label>Сообщение</label>
+            <textarea id="form-message" placeholder="Опишите ваш вопрос..."></textarea>
+        </div>
+        
+        <button class="btn" onclick="submitForm()">Отправить заявку</button>
+    </div>
+
+    <!-- ЭКРАН 3: Каталог -->
+    <div class="screen" id="screen-catalog">
+        <h1>Каталог услуг</h1>
+        <div class="card">
+            <p>Выберите услугу и нажмите "Заказать"</p>
+        </div>
+        
+        <div class="product">
+            <div class="product-info">
+                <div class="product-name">Базовый пакет</div>
+                <div class="product-desc">Стандартное решение</div>
+                <div class="product-price">1 500 ₽</div>
+            </div>
+            <button class="btn btn-small" onclick="orderProduct('Базовый пакет', 1500)">Заказать</button>
+        </div>
+        
+        <div class="product">
+            <div class="product-info">
+                <div class="product-name">Продвинутый</div>
+                <div class="product-desc">Расширенные функции</div>
+                <div class="product-price">3 500 ₽</div>
+            </div>
+            <button class="btn btn-small" onclick="orderProduct('Продвинутый', 3500)">Заказать</button>
+        </div>
+        
+        <div class="product">
+            <div class="product-info">
+                <div class="product-name">Премиум</div>
+                <div class="product-desc">Максимум возможностей</div>
+                <div class="product-price">7 000 ₽</div>
+            </div>
+            <button class="btn btn-small" onclick="orderProduct('Премиум', 7000)">Заказать</button>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="nav">
+        <button class="nav-btn active" onclick="showScreen('home', this)">Главная</button>
+        <button class="nav-btn" onclick="showScreen('form', this)">Форма</button>
+        <button class="nav-btn" onclick="showScreen('catalog', this)">Каталог</button>
+    </div>
+
+    <script>
+        var tg = window.Telegram.WebApp;
+        var log = document.getElementById('log');
+        
+        // Инициализация
+        tg.ready();
+        tg.expand();
+        
+        // Получаем имя пользователя
+        var user = tg.initDataUnsafe.user;
+        if (user) {
+            document.getElementById('greeting').innerText = 'Привет, ' + user.first_name + '!';
+            document.getElementById('form-name').value = user.first_name || '';
+        }
+        
+        log.innerHTML = '✅ Приложение загружено<br>Пользователь: ' + (user ? user.first_name : 'Гость');
+        
+        // Переключение экранов
+        function showScreen(screenName, btn) {
+            // Скрываем все экраны
+            var screens = document.querySelectorAll('.screen');
+            for (var i = 0; i < screens.length; i++) {
+                screens[i].classList.remove('active');
+            }
+            
+            // Показываем нужный
+            document.getElementById('screen-' + screenName).classList.add('active');
+            
+            // Обновляем активную кнопку
+            var buttons = document.querySelectorAll('.nav-btn');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('active');
+            }
+            if (btn) btn.classList.add('active');
+        }
+        
+        // Отправка тестовых данных
+        function sendTest() {
+            var data = {
+                action: 'test_button',
+                message: 'Тестовая кнопка нажата',
+                timestamp: new Date().toISOString(),
+                user: user ? user.first_name : 'Гость'
+            };
+            tg.sendData(JSON.stringify(data));
+            showToast('Данные отправлены!');
+            log.innerHTML += '<br> Тестовые данные отправлены';
+        }
+        
+        // Отправка формы
+        function submitForm() {
+            var name = document.getElementById('form-name').value;
+            var phone = document.getElementById('form-phone').value;
+            var message = document.getElementById('form-message').value;
+            
+            if (!name || !phone) {
+                showToast('Заполните имя и телефон!', true);
+                return;
+            }
+            
+            var data = {
+                action: 'contact_form',
+                name: name,
+                phone: phone,
+                message: message,
+                timestamp: new Date().toISOString()
+            };
+            
+            tg.sendData(JSON.stringify(data));
+            showToast('Заявка отправлена!');
+            
+            // Очищаем форму
+            document.getElementById('form-phone').value = '';
+            document.getElementById('form-message').value = '';
+        }
+        
+        // Заказ товара
+        function orderProduct(productName, price) {
+            var data = {
+                action: 'order',
+                product: productName,
+                price: price,
+                timestamp: new Date().toISOString(),
+                user: user ? user.first_name : 'Гость'
+            };
+            tg.sendData(JSON.stringify(data));
+            showToast('Заказ оформлен: ' + productName);
+        }
+        
+        // Показ уведомления
+        function showToast(message, isError) {
+            var toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.style.backgroundColor = isError ? '#f44336' : '#4caf50';
+            toast.classList.add('show');
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

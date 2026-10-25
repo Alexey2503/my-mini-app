@@ -219,7 +219,6 @@
             localStorage.setItem('autoparts_cart', JSON.stringify(cart));
             showToast(`${name} добавлен в корзину`);
             
-            // Вибрация для тактильного отклика (фишка Telegram)
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
@@ -267,57 +266,34 @@
         }
 
         function checkout() {
-    if (cart.length === 0) {
-        showToast('Корзина пуста!', true);
-        return;
-    }
-    
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
-    const orderData = {
-        action: 'checkout',
-        user_id: user ? user.id : 'unknown',
-        user_name: user ? user.first_name : 'Гость',
-        items: cart,
-        total: total,
-        timestamp: new Date().toISOString()
-    };
+            if (cart.length === 0) {
+                showToast('Корзина пуста!', true);
+                return;
+            }
+            
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const orderData = {
+                action: 'checkout',
+                user_id: user ? user.id : 'unknown',
+                user_name: user ? user.first_name : 'Гость',
+                items: cart,
+                total: total,
+                timestamp: new Date().toISOString()
+            };
 
-    console.log('Отправляем данные боту:', orderData);
-    
-    // Отправляем через sendData (для Telegram)
-    tg.sendData(JSON.stringify(orderData));
-    
-    // И дополнительно через fetch (для надежности)
-    const botToken = '8782324378:AAEHijnf05qh6gfJlelJ7sauum_fJIt54Ck';
-    const chatId = user ? user.id : null;
-    
-    if (chatId) {
-        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: `🛒 Новый заказ!\n\nТовары: ${cart.map(i => i.name).join(', ')}\nСумма: ${total} ₽`,
-                parse_mode: 'Markdown'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Ответ от Telegram API:', data);
-        })
-        .catch(error => {
-            console.error('Ошибка отправки:', error);
-        });
-    }
-    
-    showToast('✅ Заказ успешно оформлен!', false);
-    clearCart();
-    
-    setTimeout(() => {
-        console.log('Закрываем приложение...');
-        tg.close();
-    }, 5000);
-}
+            console.log('Отправляем данные боту:', orderData);
+            
+            // Отправляем данные боту через Telegram (без токена!)
+            tg.sendData(JSON.stringify(orderData));
+            
+            showToast('✅ Заказ успешно оформлен!', false);
+            clearCart();
+            
+            setTimeout(() => {
+                console.log('Закрываем приложение...');
+                tg.close();
+            }, 3000);
+        }
     </script>
 </body>
 </html>

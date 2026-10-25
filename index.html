@@ -267,28 +267,40 @@
         }
 
         function checkout() {
-            if (cart.length === 0) return;
-            
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const orderData = {
-                action: 'checkout',
-                user_id: user ? user.id : 'unknown',
-                user_name: user ? user.first_name : 'Гость',
-                items: cart,
-                total: total,
-                timestamp: new Date().toISOString()
-            };
+    if (cart.length === 0) {
+        showToast('Корзина пуста!', true);
+        return;
+    }
+    
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const orderData = {
+        action: 'checkout',
+        user_id: user ? user.id : 'unknown',
+        user_name: user ? user.first_name : 'Гость',
+        items: cart,
+        total: total,
+        timestamp: new Date().toISOString()
+    };
 
-            // Отправляем данные боту (он сохранит их в БД)
-            tg.sendData(JSON.stringify(orderData));
-            
-            // Очищаем корзину и показываем успех
-            clearCart();
-            showToast('✅ Заказ успешно оформлен!');
-            
-            // Закрываем приложение через 1.5 секунды
-            setTimeout(() => tg.close(), 1500);
-        }
+    console.log('Отправляем данные боту:', orderData);
+    
+    // Отправляем данные боту
+    tg.sendData(JSON.stringify(orderData));
+    
+    // Показываем успех
+    showToast('✅ Заказ успешно оформлен!', false);
+    
+    // Очищаем корзину
+    clearCart();
+    
+    // НЕ закрываем приложение сразу!
+    // Пользователь может сам закрыть его крестиком
+    // Или закроем через 5 секунд для надежности
+    setTimeout(() => {
+        console.log('Закрываем приложение...');
+        tg.close();
+    }, 5000);
+}
     </script>
 </body>
 </html>

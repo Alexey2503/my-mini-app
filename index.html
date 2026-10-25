@@ -284,18 +284,35 @@
 
     console.log('Отправляем данные боту:', orderData);
     
-    // Отправляем данные боту
+    // Отправляем через sendData (для Telegram)
     tg.sendData(JSON.stringify(orderData));
     
-    // Показываем успех
-    showToast('✅ Заказ успешно оформлен!', false);
+    // И дополнительно через fetch (для надежности)
+    const botToken = '8782324378:AAEHijnf05qh6gfJlelJ7sauum_fJIt54Ck';
+    const chatId = user ? user.id : null;
     
-    // Очищаем корзину
+    if (chatId) {
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: `🛒 Новый заказ!\n\nТовары: ${cart.map(i => i.name).join(', ')}\nСумма: ${total} ₽`,
+                parse_mode: 'Markdown'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Ответ от Telegram API:', data);
+        })
+        .catch(error => {
+            console.error('Ошибка отправки:', error);
+        });
+    }
+    
+    showToast('✅ Заказ успешно оформлен!', false);
     clearCart();
     
-    // НЕ закрываем приложение сразу!
-    // Пользователь может сам закрыть его крестиком
-    // Или закроем через 5 секунд для надежности
     setTimeout(() => {
         console.log('Закрываем приложение...');
         tg.close();

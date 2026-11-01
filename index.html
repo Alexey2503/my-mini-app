@@ -2,157 +2,117 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoParts Store</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg-color: var(--tg-theme-bg-color, #ffffff);
-            --text-color: var(--tg-theme-text-color, #000000);
-            --hint-color: var(--tg-theme-hint-color, #999999);
-            --button-color: var(--tg-theme-button-color, #3390ec);
-            --button-text-color: var(--tg-theme-button-text-color, #ffffff);
-            --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
-            --danger-color: #ff3b30;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--tg-theme-bg-color, #fff);
+            color: var(--tg-theme-text-color, #000);
             padding: 16px;
             padding-bottom: 90px;
-            transition: background-color 0.3s, color 0.3s;
         }
-        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .screen { display: none; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-        .subtitle { color: var(--hint-color); font-size: 15px; margin-bottom: 24px; }
-
+        h1 { font-size: 24px; margin-bottom: 8px; }
+        .subtitle { color: var(--tg-theme-hint-color, #999); font-size: 14px; margin-bottom: 20px; }
         .card {
-            background-color: var(--secondary-bg);
-            border-radius: 16px;
+            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
+            border-radius: 12px;
             padding: 16px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
-        .product-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .product-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
-        .product-sku { color: var(--hint-color); font-size: 13px; margin-bottom: 12px; }
-        .product-price { font-weight: 700; font-size: 18px; color: var(--button-color); }
-        
         .btn {
-            background-color: var(--button-color);
-            color: var(--button-text-color);
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #fff);
             border: none;
             padding: 14px;
             font-size: 16px;
             font-weight: 600;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             width: 100%;
-            margin-top: 12px;
-            transition: opacity 0.2s;
+            margin-top: 10px;
         }
-        .btn:active { opacity: 0.8; }
         .btn-small { width: auto; padding: 10px 16px; font-size: 14px; margin: 0; }
-        .btn-danger { background-color: var(--danger-color); }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-        .cart-item:last-child { border-bottom: none; }
-        .cart-total {
-            display: flex;
-            justify-content: space-between;
-            font-size: 20px;
-            font-weight: 700;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 2px solid var(--button-color);
-        }
-
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background-color: var(--secondary-bg);
+            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
             display: flex; justify-content: space-around;
             padding: 12px 0;
-            border-top: 1px solid rgba(0,0,0,0.05);
-            backdrop-filter: blur(10px);
-            z-index: 100;
+            border-top: 1px solid #e0e0e0;
         }
         .nav-item {
             display: flex; flex-direction: column; align-items: center;
-            color: var(--hint-color); font-size: 12px; font-weight: 500;
-            cursor: pointer; transition: color 0.2s;
+            color: var(--tg-theme-hint-color, #999); font-size: 12px;
+            cursor: pointer;
         }
-        .nav-item.active { color: var(--button-color); }
+        .nav-item.active { color: var(--tg-theme-button-color, #3390ec); }
         .nav-icon { font-size: 24px; margin-bottom: 4px; }
-
         .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background-color: #4caf50; color: white; padding: 12px 24px;
-            border-radius: 50px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1000;
+            border-radius: 50px; font-weight: 600; opacity: 0;
+            transition: opacity 0.3s; z-index: 1000;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .empty-cart { text-align: center; color: var(--hint-color); padding: 40px 0; }
+        .toast.show { opacity: 1; }
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #e0e0e0;
+        }
+        .cart-total {
+            display: flex; justify-content: space-between;
+            font-size: 18px; font-weight: 700; margin-top: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="toast" id="toast">Успешно!</div>
 
-    <!-- ЭКРАН 1: Главная -->
     <div class="screen active" id="screen-home">
         <h1 id="greeting">Привет!</h1>
         <p class="subtitle">Добро пожаловать в AutoParts Store</p>
         <div class="card">
             <h3>🚀 Статус системы</h3>
-            <p style="margin-top: 8px; color: var(--hint-color);">Приложение работает. Данные сохраняются в базу данных.</p>
+            <p style="margin-top: 8px; color: var(--tg-theme-hint-color, #999);">Приложение работает.</p>
         </div>
         <button class="btn" onclick="switchScreen('catalog', document.querySelectorAll('.nav-item')[1])">Перейти в каталог</button>
     </div>
 
-    <!-- ЭКРАН 2: Каталог -->
     <div class="screen" id="screen-catalog">
         <h1>Каталог</h1>
         <p class="subtitle">Масла, фильтры и запчасти</p>
         
         <div class="card">
-            <div class="product-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <div class="product-name">Масляный фильтр MANN</div>
-                    <div class="product-sku">Артикул: W712/95 • В наличии: 15 шт</div>
+                    <div style="font-weight: 600;">Масляный фильтр MANN</div>
+                    <div style="color: var(--tg-theme-hint-color, #999); font-size: 13px;">Артикул: W712/95</div>
+                    <div style="font-weight: 700; color: var(--tg-theme-button-color, #3390ec); margin-top: 8px;">850 ₽</div>
                 </div>
-                <div class="product-price">850 ₽</div>
+                <button class="btn btn-small" onclick="addToCart('Масляный фильтр MANN', 850)">В корзину</button>
             </div>
-            <button class="btn btn-small" onclick="addToCart('Масляный фильтр MANN', 850)">В корзину</button>
         </div>
 
         <div class="card">
-            <div class="product-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <div class="product-name">Моторное масло Shell 5W-40</div>
-                    <div class="product-sku">Артикул: 550040755 • В наличии: 8 шт</div>
+                    <div style="font-weight: 600;">Моторное масло Shell 5W-40</div>
+                    <div style="color: var(--tg-theme-hint-color, #999); font-size: 13px;">Артикул: 550040755</div>
+                    <div style="font-weight: 700; color: var(--tg-theme-button-color, #3390ec); margin-top: 8px;">4 200 ₽</div>
                 </div>
-                <div class="product-price">4 200 ₽</div>
+                <button class="btn btn-small" onclick="addToCart('Моторное масло Shell 5W-40', 4200)">В корзину</button>
             </div>
-            <button class="btn btn-small" onclick="addToCart('Моторное масло Shell 5W-40', 4200)">В корзину</button>
         </div>
     </div>
 
-    <!-- ЭКРАН 3: Корзина -->
     <div class="screen" id="screen-cart">
         <h1>Корзина</h1>
         <p class="subtitle">Ваши выбранные товары</p>
         <div id="cart-items-container">
-            <div class="empty-cart">Корзина пуста</div>
+            <div style="text-align: center; color: var(--tg-theme-hint-color, #999); padding: 40px 0;">Корзина пуста</div>
         </div>
         <div id="cart-footer" style="display: none;">
             <div class="cart-total">
@@ -160,11 +120,9 @@
                 <span id="total-price">0 ₽</span>
             </div>
             <button class="btn" onclick="checkout()">Оформить заказ</button>
-            <button class="btn btn-danger" onclick="clearCart()" style="margin-top: 8px;">Очистить корзину</button>
         </div>
     </div>
 
-    <!-- ЭКРАН 4: Профиль -->
     <div class="screen" id="screen-profile">
         <h1>Профиль</h1>
         <p class="subtitle">Ваши данные</p>
@@ -174,7 +132,6 @@
         </div>
     </div>
 
-    <!-- Нижняя навигация -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchScreen('home', this)"><span class="nav-icon">🏠</span><span>Главная</span></div>
         <div class="nav-item" onclick="switchScreen('catalog', this)"><span class="nav-icon">📦</span><span>Каталог</span></div>
@@ -194,7 +151,6 @@
             document.getElementById('user-id').innerText = user.id;
         }
 
-        // Логика корзины
         let cart = JSON.parse(localStorage.getItem('autoparts_cart')) || [];
 
         function switchScreen(screenName, navElement) {
@@ -202,14 +158,12 @@
             document.getElementById(`screen-${screenName}`).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             if (navElement) navElement.classList.add('active');
-            
             if (screenName === 'cart') renderCart();
         }
 
-        function showToast(message, isError = false) {
+        function showToast(message) {
             const toast = document.getElementById('toast');
             toast.innerText = message;
-            toast.style.backgroundColor = isError ? '#ff3b30' : '#4caf50';
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2500);
         }
@@ -218,8 +172,6 @@
             cart.push({ name, price, id: Date.now() });
             localStorage.setItem('autoparts_cart', JSON.stringify(cart));
             showToast(`${name} добавлен в корзину`);
-            
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
         function renderCart() {
@@ -227,7 +179,7 @@
             const footer = document.getElementById('cart-footer');
             
             if (cart.length === 0) {
-                container.innerHTML = '<div class="empty-cart">Корзина пуста</div>';
+                container.innerHTML = '<div style="text-align: center; color: var(--tg-theme-hint-color, #999); padding: 40px 0;">Корзина пуста</div>';
                 footer.style.display = 'none';
                 return;
             }
@@ -240,9 +192,8 @@
                     <div class="cart-item">
                         <div>
                             <div style="font-weight: 600;">${item.name}</div>
-                            <div style="color: var(--button-color); font-weight: 700;">${item.price.toLocaleString()} ₽</div>
+                            <div style="color: var(--tg-theme-button-color, #3390ec); font-weight: 700;">${item.price.toLocaleString()} ₽</div>
                         </div>
-                        <button class="btn btn-small btn-danger" onclick="removeFromCart(${index})">✕</button>
                     </div>
                 `;
             });
@@ -252,22 +203,9 @@
             footer.style.display = 'block';
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            localStorage.setItem('autoparts_cart', JSON.stringify(cart));
-            renderCart();
-        }
-
-        function clearCart() {
-            cart = [];
-            localStorage.setItem('autoparts_cart', JSON.stringify(cart));
-            renderCart();
-            showToast('Корзина очищена');
-        }
-
         function checkout() {
             if (cart.length === 0) {
-                showToast('Корзина пуста!', true);
+                showToast('Корзина пуста!');
                 return;
             }
             
@@ -281,18 +219,18 @@
                 timestamp: new Date().toISOString()
             };
 
-            console.log('Отправляем данные боту:', orderData);
+            const orderJson = JSON.stringify(orderData);
+            console.log('Отправляем:', orderJson);
             
-            // Отправляем данные боту через Telegram (без токена!)
-            tg.sendData(JSON.stringify(orderData));
+            // Отправляем через Telegram WebApp
+            tg.sendData(orderJson);
             
-            showToast('✅ Заказ успешно оформлен!', false);
-            clearCart();
+            showToast('✅ Заказ оформлен!');
+            cart = [];
+            localStorage.setItem('autoparts_cart', JSON.stringify(cart));
+            renderCart();
             
-            setTimeout(() => {
-                console.log('Закрываем приложение...');
-                tg.close();
-            }, 3000);
+            setTimeout(() => tg.close(), 3000);
         }
     </script>
 </body>

@@ -233,40 +233,45 @@
         }
 
         function checkout() {
-            if (cart.length === 0) {
-                showToast('Корзина пуста!');
-                return;
-            }
+    if (cart.length === 0) {
+        alert('Корзина пуста!');
+        return;
+    }
 
-            var total = 0;
-            for (var i = 0; i < cart.length; i++) {
-                total += cart[i].price;
-            }
+    var total = 0;
+    for (var i = 0; i < cart.length; i++) {
+        total += cart[i].price;
+    }
 
-            var orderData = {
-                action: 'checkout',
-                user_id: user ? user.id : 'unknown',
-                user_name: user ? user.first_name : 'Гость',
-                items: cart,
-                total: total,
-                timestamp: new Date().toISOString()
-            };
+    var orderData = {
+        action: 'checkout',
+        user_id: user ? user.id : 'unknown',
+        user_name: user ? user.first_name : 'Гость',
+        items: cart,
+        total: total,
+        timestamp: new Date().toISOString()
+    };
 
-            var orderJson = JSON.stringify(orderData);
-            console.log('Отправляем заказ:', orderJson);
+    console.log('Отправляем заказ:', orderData);
 
-            // Отправляем данные боту через Telegram
-            tg.sendData(orderJson);
+    // Способ 1: Через Telegram (работает только внутри Telegram)
+    if (tg && tg.sendData) {
+        tg.sendData(JSON.stringify(orderData));
+        console.log('✅ Отправлено через tg.sendData()');
+    } else {
+        console.log('️ tg.sendData недоступен. Открывайте через Telegram!');
+    }
 
-            showToast('✅ Заказ оформлен!');
-            cart = [];
-            localStorage.setItem('autoparts_cart', JSON.stringify(cart));
-            renderCart();
+    alert('Заказ оформлен на сумму ' + total + ' ₽!\n\n⚠️ Для реальной отправки откройте приложение через Telegram (кнопка меню).');
+    
+    cart = [];
+    localStorage.setItem('cart', JSON.stringify(cart));
+    renderCart();
 
-            setTimeout(function() {
-                tg.close();
-            }, 2000);
-        }
+    setTimeout(function() {
+        if (tg && tg.close) tg.close();
+    }, 2000);
+}
     </script>
 </body>
 </html>

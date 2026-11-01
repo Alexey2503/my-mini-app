@@ -2,147 +2,271 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoParts Store</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg-color: var(--tg-theme-bg-color, #ffffff);
-            --text-color: var(--tg-theme-text-color, #000000);
-            --hint-color: var(--tg-theme-hint-color, #999999);
-            --button-color: var(--tg-theme-button-color, #3390ec);
-            --button-text-color: var(--tg-theme-button-text-color, #ffffff);
-            --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
-            --danger-color: #ff3b30;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 16px;
-            padding-bottom: 90px;
+            font-family: Arial, sans-serif;
+            background: #fff;
+            color: #000;
+            padding: 20px;
+            margin: 0;
         }
-        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .screen { display: none; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-        .subtitle { color: var(--hint-color); font-size: 15px; margin-bottom: 24px; }
-
-        .card {
-            background-color: var(--secondary-bg);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        .product-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .product-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
-        .product-sku { color: var(--hint-color); font-size: 13px; margin-bottom: 12px; }
-        .product-price { font-weight: 700; font-size: 18px; color: var(--button-color); }
-        
         .btn {
-            background-color: var(--button-color);
-            color: var(--button-text-color);
+            background: #3390ec;
+            color: #fff;
             border: none;
-            padding: 14px;
+            padding: 15px;
             font-size: 16px;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
+            border-radius: 10px;
             width: 100%;
-            margin-top: 12px;
+            margin: 10px 0;
+            cursor: pointer;
         }
-        .btn:active { opacity: 0.8; }
-        .btn-small { width: auto; padding: 10px 16px; font-size: 14px; margin: 0; }
-        .btn-danger { background-color: var(--danger-color); }
-
-        .cart-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.05);
+        .btn-small {
+            width: auto;
+            padding: 10px 20px;
+            font-size: 14px;
         }
-        .cart-total {
-            display: flex; justify-content: space-between;
-            font-size: 20px; font-weight: 700; margin-top: 16px;
-            padding-top: 16px; border-top: 2px solid var(--button-color);
+        .card {
+            background: #f4f4f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
         }
-
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background-color: var(--secondary-bg);
-            display: flex; justify-content: space-around;
-            padding: 12px 0; border-top: 1px solid rgba(0,0,0,0.05);
-            backdrop-filter: blur(10px); z-index: 100;
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #f4f4f5;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
         }
         .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            color: var(--hint-color); font-size: 12px; font-weight: 500; cursor: pointer;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
         }
-        .nav-item.active { color: var(--button-color); }
-        .nav-icon { font-size: 24px; margin-bottom: 4px; }
-
+        .nav-item.active { color: #3390ec; font-weight: bold; }
+        .nav-icon { font-size: 24px; display: block; }
         .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background-color: #4caf50; color: white; padding: 12px 24px;
-            border-radius: 50px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4caf50;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 20px;
+            display: none;
+            z-index: 1000;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .empty-cart { text-align: center; color: var(--hint-color); padding: 40px 0; }
+        .product {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+        .cart-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
     <div class="toast" id="toast">Успешно!</div>
 
-    <!-- ЭКРАН 1: Главная -->
+    <!-- Главная -->
     <div class="screen active" id="screen-home">
         <h1 id="greeting">Привет!</h1>
-        <p class="subtitle">Добро пожаловать в AutoParts Store</p>
+        <p>Добро пожаловать в AutoParts Store</p>
         <div class="card">
             <h3>🚀 Статус системы</h3>
-            <p style="margin-top: 8px; color: var(--hint-color);">Приложение работает. Данные сохраняются в базу данных.</p>
+            <p>Приложение работает.</p>
         </div>
-        <button class="btn" onclick="switchScreen('catalog', document.querySelectorAll('.nav-item')[1])">Перейти в каталог</button>
+        <button class="btn" onclick="goToCatalog()">Перейти в каталог</button>
     </div>
 
-    <!-- ЭКРАН 2: Каталог -->
+    <!-- Каталог -->
     <div class="screen" id="screen-catalog">
         <h1>Каталог</h1>
-        <p class="subtitle">Масла, фильтры и запчасти</p>
+        <p>Масла, фильтры и запчасти</p>
         
         <div class="card">
-            <div class="product-header">
+            <div class="product">
                 <div>
-                    <div class="product-name">Масляный фильтр MANN</div>
-                    <div class="product-sku">Артикул: W712/95 • В наличии: 15 шт</div>
+                    <b>Масляный фильтр MANN</b><br>
+                    <small>Артикул: W712/95</small><br>
+                    <b style="color:#3390ec;">850 ₽</b>
                 </div>
-                <div class="product-price">850 ₽</div>
+                <button class="btn btn-small" onclick="addToCart('Масляный фильтр MANN', 850)">В корзину</button>
             </div>
-            <button class="btn btn-small" onclick="addToCart('Масляный фильтр MANN', 850)">В корзину</button>
         </div>
 
         <div class="card">
-            <div class="product-header">
+            <div class="product">
                 <div>
-                    <div class="product-name">Моторное масло Shell 5W-40</div>
-                    <div class="product-sku">Артикул: 550040755 • В наличии: 8 шт</div>
+                    <b>Моторное масло Shell 5W-40</b><br>
+                    <small>Артикул: 550040755</small><br>
+                    <b style="color:#3390ec;">4 200 ₽</b>
                 </div>
-                <div class="product-price">4 200 ₽</div>
+                <button class="btn btn-small" onclick="addToCart('Моторное масло Shell 5W-40', 4200)">В корзину</button>
             </div>
-            <button class="btn btn-small" onclick="addToCart('Моторное масло Shell 5W-40', 4200)">В корзину</button>
         </div>
     </div>
 
-    <!-- ЭКРАН 3: Корзина -->
+    <!-- Корзина -->
     <div class="screen" id="screen-cart">
         <h1>Корзина</h1>
-        <p class="subtitle">Ваши выбранные товары</p>
-        <div id="cart-items-container">
-            <div class="empty-cart">Корзина пуста</div>
+        <p>Ваши выбранные товары</p>
+        <div id="cart-container">
+            <p style="text-align:center; color:#999;">Корзина пуста</p>
         </div>
-        <div id="cart-footer" style="display: none;">
-            <div class="cart-total">
-                <span>Итого:</span>
-                <span id="total-price">0 ₽</span>
-            </div>
-            <
+        <div id="cart-footer" style="display:none;">
+            <h3>Итого: <span id="total-price">0</span> ₽</h3>
+            <button class="btn" onclick="checkout()">Оформить заказ</button>
+        </div>
+    </div>
+
+    <!-- Профиль -->
+    <div class="screen" id="screen-profile">
+        <h1>Профиль</h1>
+        <div class="card">
+            <p><b>ID:</b> <span id="user-id">Загрузка...</span></p>
+            <p><b>Имя:</b> <span id="user-name">Загрузка...</span></p>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="nav">
+        <div class="nav-item active" onclick="showScreen('home', this)">
+            <span class="nav-icon">🏠</span>Главная
+        </div>
+        <div class="nav-item" onclick="showScreen('catalog', this)">
+            <span class="nav-icon">📦</span>Каталог
+        </div>
+        <div class="nav-item" onclick="showScreen('cart', this)">
+            <span class="nav-icon">🛒</span>Корзина
+        </div>
+        <div class="nav-item" onclick="showScreen('profile', this)">
+            <span class="nav-icon">👤</span>Профиль
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        var tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        var user = tg.initDataUnsafe.user;
+        if (user) {
+            document.getElementById('greeting').innerText = 'Привет, ' + user.first_name + '!';
+            document.getElementById('user-name').innerText = user.first_name + ' ' + (user.last_name || '');
+            document.getElementById('user-id').innerText = user.id;
+        }
+
+        var cart = JSON.parse(localStorage.getItem('autoparts_cart')) || [];
+
+        function showScreen(name, navEl) {
+            var screens = document.querySelectorAll('.screen');
+            for (var i = 0; i < screens.length; i++) {
+                screens[i].classList.remove('active');
+            }
+            document.getElementById('screen-' + name).classList.add('active');
+
+            var navItems = document.querySelectorAll('.nav-item');
+            for (var i = 0; i < navItems.length; i++) {
+                navItems[i].classList.remove('active');
+            }
+            if (navEl) navEl.classList.add('active');
+
+            if (name === 'cart') renderCart();
+        }
+
+        function goToCatalog() {
+            var catalogNav = document.querySelectorAll('.nav-item')[1];
+            showScreen('catalog', catalogNav);
+        }
+
+        function showToast(msg) {
+            var toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(function() {
+                toast.style.display = 'none';
+            }, 2500);
+        }
+
+        function addToCart(name, price) {
+            cart.push({ name: name, price: price, id: Date.now() });
+            localStorage.setItem('autoparts_cart', JSON.stringify(cart));
+            showToast(name + ' добавлен в корзину');
+        }
+
+        function renderCart() {
+            var container = document.getElementById('cart-container');
+            var footer = document.getElementById('cart-footer');
+
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#999;">Корзина пуста</p>';
+                footer.style.display = 'none';
+                return;
+            }
+
+            var html = '';
+            var total = 0;
+            for (var i = 0; i < cart.length; i++) {
+                total += cart[i].price;
+                html += '<div class="cart-item"><b>' + cart[i].name + '</b><br>' + cart[i].price + ' ₽</div>';
+            }
+
+            container.innerHTML = html;
+            document.getElementById('total-price').innerText = total;
+            footer.style.display = 'block';
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                showToast('Корзина пуста!');
+                return;
+            }
+
+            var total = 0;
+            for (var i = 0; i < cart.length; i++) {
+                total += cart[i].price;
+            }
+
+            var orderData = {
+                action: 'checkout',
+                user_id: user ? user.id : 'unknown',
+                user_name: user ? user.first_name : 'Гость',
+                items: cart,
+                total: total,
+                timestamp: new Date().toISOString()
+            };
+
+            var orderJson = JSON.stringify(orderData);
+            console.log('Отправляем заказ:', orderJson);
+
+            // Отправляем данные боту через Telegram
+            tg.sendData(orderJson);
+
+            showToast('✅ Заказ оформлен!');
+            cart = [];
+            localStorage.setItem('autoparts_cart', JSON.stringify(cart));
+            renderCart();
+
+            setTimeout(function() {
+                tg.close();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

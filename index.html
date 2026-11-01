@@ -6,135 +6,56 @@
     <title>AutoParts Store</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #fff;
-            color: #000;
-            padding: 20px;
-            margin: 0;
-        }
+        body { font-family: Arial, sans-serif; background: #fff; color: #000; padding: 20px; margin: 0; padding-bottom: 80px; }
         .screen { display: none; }
         .screen.active { display: block; }
-        .btn {
-            background: #3390ec;
-            color: #fff;
-            border: none;
-            padding: 15px;
-            font-size: 16px;
-            border-radius: 10px;
-            width: 100%;
-            margin: 10px 0;
-            cursor: pointer;
-        }
-        .btn-small {
-            width: auto;
-            padding: 10px 20px;
-            font-size: 14px;
-        }
-        .card {
-            background: #f4f4f5;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-        }
-        .nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #f4f4f5;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            border-top: 1px solid #ddd;
-        }
-        .nav-item {
-            text-align: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
+        .btn { background: #3390ec; color: #fff; border: none; padding: 15px; font-size: 16px; border-radius: 10px; width: 100%; margin: 10px 0; cursor: pointer; }
+        .btn-small { width: auto; padding: 10px 20px; font-size: 14px; }
+        .card { background: #f4f4f5; padding: 15px; border-radius: 10px; margin: 10px 0; }
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: #f4f4f5; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
+        .nav-item { text-align: center; cursor: pointer; font-size: 12px; }
         .nav-item.active { color: #3390ec; font-weight: bold; }
         .nav-icon { font-size: 24px; display: block; }
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #4caf50;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 20px;
-            display: none;
-            z-index: 1000;
-        }
-        .product {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-        }
-        .cart-item {
-            padding: 10px 0;
-            border-bottom: 1px solid #ddd;
-        }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #4caf50; color: #fff; padding: 12px 24px; border-radius: 20px; display: none; z-index: 1000; }
+        .product { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+        .cart-item { padding: 10px 0; border-bottom: 1px solid #ddd; }
     </style>
 </head>
 <body>
     <div class="toast" id="toast">Успешно!</div>
 
-    <!-- Главная -->
     <div class="screen active" id="screen-home">
         <h1 id="greeting">Привет!</h1>
         <p>Добро пожаловать в AutoParts Store</p>
-        <div class="card">
-            <h3>🚀 Статус системы</h3>
-            <p>Приложение работает.</p>
-        </div>
-        <button class="btn" onclick="goToCatalog()">Перейти в каталог</button>
+        <div class="card"><h3>🚀 Статус системы</h3><p>Приложение работает.</p></div>
+        <button class="btn" onclick="showScreen('catalog', document.querySelectorAll('.nav-item')[1])">Перейти в каталог</button>
     </div>
 
-    <!-- Каталог -->
     <div class="screen" id="screen-catalog">
-        <h1>Каталог</h1>
-        <p>Масла, фильтры и запчасти</p>
-        
+        <h1>Каталог</h1><p>Масла, фильтры и запчасти</p>
         <div class="card">
             <div class="product">
-                <div>
-                    <b>Масляный фильтр MANN</b><br>
-                    <small>Артикул: W712/95</small><br>
-                    <b style="color:#3390ec;">850 ₽</b>
-                </div>
+                <div><b>Масляный фильтр MANN</b><br><small>Артикул: W712/95</small><br><b style="color:#3390ec;">850 ₽</b></div>
                 <button class="btn btn-small" onclick="addToCart('Масляный фильтр MANN', 850)">В корзину</button>
             </div>
         </div>
-
         <div class="card">
             <div class="product">
-                <div>
-                    <b>Моторное масло Shell 5W-40</b><br>
-                    <small>Артикул: 550040755</small><br>
-                    <b style="color:#3390ec;">4 200 ₽</b>
-                </div>
+                <div><b>Моторное масло Shell 5W-40</b><br><small>Артикул: 550040755</small><br><b style="color:#3390ec;">4 200 ₽</b></div>
                 <button class="btn btn-small" onclick="addToCart('Моторное масло Shell 5W-40', 4200)">В корзину</button>
             </div>
         </div>
     </div>
 
-    <!-- Корзина -->
     <div class="screen" id="screen-cart">
-        <h1>Корзина</h1>
-        <p>Ваши выбранные товары</p>
-        <div id="cart-container">
-            <p style="text-align:center; color:#999;">Корзина пуста</p>
-        </div>
+        <h1>Корзина</h1><p>Ваши выбранные товары</p>
+        <div id="cart-container"><p style="text-align:center; color:#999;">Корзина пуста</p></div>
         <div id="cart-footer" style="display:none;">
             <h3>Итого: <span id="total-price">0</span> ₽</h3>
             <button class="btn" onclick="checkout()">Оформить заказ</button>
         </div>
     </div>
 
-    <!-- Профиль -->
     <div class="screen" id="screen-profile">
         <h1>Профиль</h1>
         <div class="card">
@@ -143,24 +64,14 @@
         </div>
     </div>
 
-    <!-- Навигация -->
     <div class="nav">
-        <div class="nav-item active" onclick="showScreen('home', this)">
-            <span class="nav-icon">🏠</span>Главная
-        </div>
-        <div class="nav-item" onclick="showScreen('catalog', this)">
-            <span class="nav-icon">📦</span>Каталог
-        </div>
-        <div class="nav-item" onclick="showScreen('cart', this)">
-            <span class="nav-icon">🛒</span>Корзина
-        </div>
-        <div class="nav-item" onclick="showScreen('profile', this)">
-            <span class="nav-icon">👤</span>Профиль
-        </div>
+        <div class="nav-item active" onclick="showScreen('home', this)"><span class="nav-icon">🏠</span>Главная</div>
+        <div class="nav-item" onclick="showScreen('catalog', this)"><span class="nav-icon">📦</span>Каталог</div>
+        <div class="nav-item" onclick="showScreen('cart', this)"><span class="nav-icon">🛒</span>Корзина</div>
+        <div class="nav-item" onclick="showScreen('profile', this)"><span class="nav-icon">👤</span>Профиль</div>
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
         var tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
@@ -176,100 +87,17 @@
 
         function showScreen(name, navEl) {
             var screens = document.querySelectorAll('.screen');
-            for (var i = 0; i < screens.length; i++) {
-                screens[i].classList.remove('active');
-            }
+            for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
             document.getElementById('screen-' + name).classList.add('active');
 
             var navItems = document.querySelectorAll('.nav-item');
-            for (var i = 0; i < navItems.length; i++) {
-                navItems[i].classList.remove('active');
-            }
+            for (var i = 0; i < navItems.length; i++) navItems[i].classList.remove('active');
             if (navEl) navEl.classList.add('active');
 
             if (name === 'cart') renderCart();
         }
 
-        function goToCatalog() {
-            var catalogNav = document.querySelectorAll('.nav-item')[1];
-            showScreen('catalog', catalogNav);
-        }
-
         function showToast(msg) {
             var toast = document.getElementById('toast');
             toast.innerText = msg;
-            toast.style.display = 'block';
-            setTimeout(function() {
-                toast.style.display = 'none';
-            }, 2500);
-        }
-
-        function addToCart(name, price) {
-            cart.push({ name: name, price: price, id: Date.now() });
-            localStorage.setItem('autoparts_cart', JSON.stringify(cart));
-            showToast(name + ' добавлен в корзину');
-        }
-
-        function renderCart() {
-            var container = document.getElementById('cart-container');
-            var footer = document.getElementById('cart-footer');
-
-            if (cart.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#999;">Корзина пуста</p>';
-                footer.style.display = 'none';
-                return;
-            }
-
-            var html = '';
-            var total = 0;
-            for (var i = 0; i < cart.length; i++) {
-                total += cart[i].price;
-                html += '<div class="cart-item"><b>' + cart[i].name + '</b><br>' + cart[i].price + ' ₽</div>';
-            }
-
-            container.innerHTML = html;
-            document.getElementById('total-price').innerText = total;
-            footer.style.display = 'block';
-        }
-
-        function checkout() {
-    // 1. ПРОВЕРКА: Сработала ли кнопка вообще?
-    alert("Кнопка 'Оформить' нажата! Товаров в корзине: " + cart.length);
-
-    if (cart.length === 0) {
-        alert("Ошибка: Корзина пуста! Сначала добавьте товар.");
-        return;
-    }
-
-    var total = 0;
-    for (var i = 0; i < cart.length; i++) {
-        total += cart[i].price;
-    }
-
-    var orderData = {
-        action: 'checkout',
-        user_id: user ? user.id : 'unknown',
-        user_name: user ? user.first_name : 'Гость',
-        items: cart,
-        total: total,
-        timestamp: new Date().toISOString()
-    };
-
-    // 2. ПРОВЕРКА: Что именно мы пытаемся отправить?
-    var jsonString = JSON.stringify(orderData);
-    alert("Готовим к отправке:\n" + jsonString);
-
-    var tg = window.Telegram.WebApp;
-    
-    // 3. ОТПРАВКА
-    tg.sendData(jsonString);
-    
-    alert("Данные отправлены в Telegram! Приложение закроется.");
-    
-    setTimeout(function() {
-        tg.close();
-    }, 2000);
-}
-    </script>
-</body>
-</html>
+           

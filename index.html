@@ -88,19 +88,19 @@
 
         .hero {
             position: relative; overflow: hidden;
-            min-height: 218px; padding: 23px 22px 21px;
-            border: 1px solid #dcecff; border-radius: 25px;
-            background: linear-gradient(118deg, #e9f4ff 0%, #f5faff 59%, #e0f3ff 100%);
+            min-height: 270px; padding: 25px 22px 24px;
+            border: 0; border-radius: 25px;
+            background-color: #102a45;
+            background-image:
+                linear-gradient(90deg, rgba(8, 28, 49, .92) 0%, rgba(8, 28, 49, .76) 42%, rgba(8, 28, 49, .12) 100%),
+                url("images/hero-car.jpg");
+            background-size: cover;
+            background-position: center right;
+            background-repeat: no-repeat;
             box-shadow: var(--shadow);
         }
-        .hero::before {
-            content: ""; position: absolute; width: 220px; height: 220px;
-            top: -83px; right: -60px; border-radius: 50%;
-            border: 1px solid rgba(62, 145, 223, .13);
-            box-shadow: 0 0 0 22px rgba(62,145,223,.035), 0 0 0 46px rgba(62,145,223,.025);
-        }
-        .hero-art { position: absolute; width: 180px; height: 145px; right: -2px; bottom: 2px; opacity: .88; pointer-events: none; }
-        .hero-content { position: relative; z-index: 1; max-width: 390px; }
+        .hero::before { display: none; }
+        .hero-content { position: relative; z-index: 1; max-width: 350px; }
         .eyebrow {
             display: inline-flex; align-items: center; gap: 7px;
             padding: 7px 10px; border-radius: 20px;
@@ -108,8 +108,8 @@
             font-size: 10px; font-weight: 850; letter-spacing: .8px;
         }
         .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: #21a7d8; }
-        .hero h1 { max-width: 330px; margin: 15px 0 8px; color: var(--navy); font-size: clamp(25px, 6vw, 34px); line-height: 1.08; letter-spacing: -1.1px; }
-        .hero p { max-width: 290px; margin: 0; color: #607991; font-size: 13px; line-height: 1.5; }
+        .hero h1 { max-width: 310px; margin: 15px 0 8px; color: #fff; font-size: clamp(25px, 6vw, 34px); line-height: 1.08; letter-spacing: -1.1px; }
+        .hero p { max-width: 285px; margin: 0; color: rgba(255,255,255,.88); font-size: 13px; line-height: 1.5; }
         .primary-btn {
             min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 9px;
             padding: 0 17px; margin-top: 17px; border: 0; border-radius: 13px;
@@ -119,17 +119,6 @@
         }
         .primary-btn:active { transform: translateY(1px); }
         .primary-btn svg { width: 16px; height: 16px; }
-
-        .benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 14px 0 26px; }
-        .benefit {
-            min-height: 66px; display: flex; align-items: center; gap: 8px;
-            padding: 10px 9px; border: 1px solid var(--line); border-radius: 15px;
-            background: rgba(255,255,255,.86);
-        }
-        .benefit-icon { width: 30px; height: 30px; flex: 0 0 30px; display: grid; place-items: center; border-radius: 10px; color: var(--blue); background: var(--pale-blue); }
-        .benefit-icon svg { width: 16px; height: 16px; }
-        .benefit strong { display: block; color: var(--navy); font-size: 10px; line-height: 1.2; }
-        .benefit span { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.2; }
 
         .section-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin: 0 1px 13px; }
         .section-title { margin: 0; color: var(--navy); font-size: 20px; font-weight: 850; letter-spacing: -.55px; }
@@ -145,10 +134,10 @@
         .product-visual {
             position: relative; height: 112px; overflow: hidden;
             display: grid; place-items: center; margin-bottom: 11px;
-            border-radius: 13px; background: linear-gradient(145deg, #f0f7ff, #e8f2fb);
+            border-radius: 13px; background: #fff;
         }
-        .product-visual::after { content: ""; position: absolute; width: 105px; height: 105px; border-radius: 50%; border: 1px solid rgba(44,126,207,.11); box-shadow: 0 0 0 13px rgba(44,126,207,.035); }
-        .product-visual svg { position: relative; z-index: 1; width: 94px; height: 94px; filter: drop-shadow(0 7px 5px rgba(31,71,109,.12)); }
+        .product-visual::after { display: none; }
+        .product-visual img { position: relative; z-index: 1; width: 100%; height: 100%; padding: 5px 12px; object-fit: contain; }
         .product-tag { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 5px 7px; border-radius: 7px; color: #3475bb; background: rgba(255,255,255,.9); font-size: 9px; font-weight: 800; }
         .product-name { min-height: 36px; margin: 0; color: var(--navy); font-size: 12px; font-weight: 800; line-height: 1.35; }
         .product-code { margin: 5px 0 9px; color: #8a9bad; font-size: 10px; }
@@ -188,7 +177,7 @@
             background: white;
         }
         .cart-thumb { width: 55px; height: 55px; flex: 0 0 55px; display: grid; place-items: center; border-radius: 12px; background: #edf5fd; }
-        .cart-thumb svg { width: 40px; height: 40px; }
+        .cart-thumb img { width: 100%; height: 100%; padding: 4px; object-fit: contain; border-radius: 12px; }
         .cart-info { min-width: 0; flex: 1; }
         .cart-name { color: var(--navy); font-size: 12px; font-weight: 800; line-height: 1.35; }
         .cart-unit { margin-top: 4px; color: var(--muted); font-size: 10px; }
@@ -241,13 +230,7 @@
 
         @media (max-width: 370px) {
             .app-shell { padding-left: 13px; padding-right: 13px; }
-            .hero { padding: 19px 16px; }
-            .hero-art { width: 145px; right: -19px; opacity: .65; }
-            .benefits { gap: 6px; }
-            .benefit { padding: 8px 6px; gap: 5px; }
-            .benefit-icon { width: 25px; height: 25px; flex-basis: 25px; }
-            .benefit strong { font-size: 9px; }
-            .benefit span { font-size: 8px; }
+            .hero { min-height: 285px; padding: 19px 16px; background-position: 58% center; }
             .product-card { padding: 8px; }
             .product-visual { height: 98px; }
         }
@@ -287,31 +270,6 @@
                             Перейти в каталог
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                         </button>
-                    </div>
-                    <svg class="hero-art" viewBox="0 0 190 150" fill="none" aria-hidden="true">
-                        <path d="M20 112c18-24 40-37 70-37 28 0 49 13 79 36" stroke="#91c5ef" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M37 109h116l-8-24c-2-7-8-12-16-13l-20-3-15-19H75L57 79l-17 5-3 25Z" fill="#75b7ed" opacity=".28" stroke="#438fd5" stroke-width="2" stroke-linejoin="round"/>
-                        <path d="m65 78 14-20h24l13 20H65Z" fill="#fff" stroke="#438fd5" stroke-width="2"/>
-                        <path d="M45 91h104" stroke="#438fd5" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="63" cy="111" r="12" fill="#fff" stroke="#367fc4" stroke-width="4"/><circle cx="63" cy="111" r="4" fill="#367fc4"/>
-                        <circle cx="132" cy="111" r="12" fill="#fff" stroke="#367fc4" stroke-width="4"/><circle cx="132" cy="111" r="4" fill="#367fc4"/>
-                        <path d="M149 43h20M159 33v20" stroke="#54a4e4" stroke-width="3" stroke-linecap="round"/>
-                        <circle cx="34" cy="48" r="5" fill="#8bc7f3"/><circle cx="151" cy="22" r="4" fill="#8bc7f3"/>
-                    </svg>
-                </div>
-
-                <div class="benefits">
-                    <div class="benefit">
-                        <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.5 2.8 7.8 7 10 4.2-2.2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
-                        <div><strong>Проверка заказа</strong><span>Перед сохранением</span></div>
-                    </div>
-                    <div class="benefit">
-                        <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-                        <div><strong>Быстро</strong><span>Через Telegram</span></div>
-                    </div>
-                    <div class="benefit">
-                        <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v13H4zM8 7V4h8v3M8 12h8"/></svg></div>
-                        <div><strong>Удобно</strong><span>Корзина в телефоне</span></div>
                     </div>
                 </div>
 
@@ -445,24 +403,9 @@
 
         function productPicture(type) {
             if (type === 'filter') {
-                return '<svg viewBox="0 0 120 120" fill="none" aria-hidden="true">' +
-                    '<ellipse cx="60" cy="91" rx="29" ry="8" fill="#b7cde0" opacity=".45"/>' +
-                    '<path d="M39 39c0-5 9-9 21-9s21 4 21 9v43c0 6-9 10-21 10S39 88 39 82V39Z" fill="#2878c9" stroke="#1e5e9f" stroke-width="2"/>' +
-                    '<ellipse cx="60" cy="39" rx="21" ry="9" fill="#59a4e9" stroke="#1e5e9f" stroke-width="2"/>' +
-                    '<path d="M42 49c7 5 29 5 36 0M42 59c7 5 29 5 36 0M42 69c7 5 29 5 36 0" stroke="#a9d7ff" stroke-width="2" opacity=".8"/>' +
-                    '<path d="M50 30v-7h20v7" stroke="#1e5e9f" stroke-width="3" stroke-linecap="round"/>' +
-                    '<path d="M49 77h22" stroke="#d6ebff" stroke-width="3" stroke-linecap="round"/>' +
-                    '</svg>';
+                return '<img src="images/oil-filter.jpg" alt="Масляный фильтр MANN" loading="lazy">';
             }
-            return '<svg viewBox="0 0 120 120" fill="none" aria-hidden="true">' +
-                '<ellipse cx="61" cy="94" rx="31" ry="7" fill="#b7cde0" opacity=".45"/>' +
-                '<path d="M43 35h34c4 0 7 3 7 7v42c0 5-4 8-9 8H45c-5 0-9-3-9-8V51c0-4 2-7 6-9l1-7Z" fill="#f0c84a" stroke="#b58a1b" stroke-width="2"/>' +
-                '<path d="M46 35V24h24v11M51 24v-5h15v5" stroke="#b58a1b" stroke-width="3" stroke-linejoin="round"/>' +
-                '<path d="M77 46h13c5 0 8 3 8 8v5H83" fill="#f0c84a" stroke="#b58a1b" stroke-width="2"/>' +
-                '<path d="M43 55h38v20H43z" fill="#fff" opacity=".92"/>' +
-                '<path d="M51 61h22M51 67h15" stroke="#47789e" stroke-width="3" stroke-linecap="round"/>' +
-                '<path d="M43 81h38" stroke="#d6a92b" stroke-width="2"/>' +
-                '</svg>';
+            return '<img src="images/shell-5w40.jpg" alt="Моторное масло Shell Helix 5W-40" loading="lazy">';
         }
 
         function productCard(product) {

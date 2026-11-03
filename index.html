@@ -308,6 +308,31 @@
         // КОРЗИНА
         // =====================================
 
+        // Локальные ключи оформления.
+        var PENDING_ORDER_KEY = 'autoparts_pending_order';
+        var PENDING_SUBMIT_KEY = 'autoparts_submit_attempt';
+        var ORDER_RETRY_WINDOW = 5 * 60 * 1000;
+
+        // Если предыдущая отправка закрыла Mini App, Telegram откроет
+        // новую страницу при следующем запуске. Только тогда очищаем корзину.
+        // Если окно не закрылось, таймер ниже сохранит корзину и разблокирует кнопку.
+        try {
+            var previousSubmit = JSON.parse(
+                localStorage.getItem(PENDING_SUBMIT_KEY)
+            );
+
+            if (previousSubmit && previousSubmit.orderId) {
+                localStorage.removeItem('autoparts_cart');
+                localStorage.removeItem(PENDING_ORDER_KEY);
+                console.log('[CHECKOUT] Предыдущая отправка завершилась закрытием Mini App. Корзина очищена.');
+            }
+        }
+        catch (e) {
+            console.log('[CHECKOUT] Не удалось проверить предыдущую отправку:', e);
+        }
+
+        localStorage.removeItem(PENDING_SUBMIT_KEY);
+
         var cart = [];
 
         try {
@@ -320,11 +345,6 @@
         }
 
         var isSending = false;
-
-        // Ключи оформления хранятся локально, чтобы быстрая повторная
-        // отправка одной и той же корзины не создала второй заказ.
-        var PENDING_ORDER_KEY = 'autoparts_pending_order';
-        var ORDER_RETRY_WINDOW = 5 * 60 * 1000;
 
         function createOrderId() {
             if (window.crypto && window.crypto.randomUUID) {
@@ -542,113 +562,120 @@
 
         function checkout() {
 
-            if (isSending) return;
-
-            if (cart.length === 0) {
-
-                alert('Корзина пуста!');
-
+            if (isSending) {
+                showToast('Заказ уже отправляется...');
                 return;
             }
 
-            if (!tg || !tg.sendData) {
+            if (cart.length === 0) {
+                alert('Корзина пуста!');
+                return;
+            }
 
+            if (!tg || typeof tg.sendData !== 'function') {
                 alert(
-                    'Откройте магазин через Telegram-бота!'
+                    'Не удалось вызвать Telegram sendData.\n\n' +
+                    'Откройте магазин именно кнопкой «🛒 Открыть магазин» ' +
+                    'в сообщении бота после команды /start.'
                 );
-
                 return;
             }
 
             var total = 0;
-
             for (var i = 0; i < cart.length; i++) {
                 total += cart[i].price;
             }
 
+            var orderId;
+            try {
+                orderId = getOrderIdForCurrentCart();
+            }
+            catch (storageError) {
+                alert('Не удалось подготовить заказ: ' + storageError.message);
+                return;
+            }
+
             var orderData = {
-
                 action: 'checkout',
-
-                // Один ключ сохраняется при повторной отправке этой корзины.
-                order_id: getOrderIdForCurrentCart(),
-
+                order_id: orderId,
                 items: cart,
-
                 total: total,
-
                 timestamp: new Date().toISOString()
-
             };
 
             var jsonData = JSON.stringify(orderData);
 
-            // Telegram ограничивает размер sendData
             if (jsonData.length > 4096) {
-
                 alert('Слишком большой заказ!');
+                return;
+            }
 
+            // Сначала сохраняем факт попытки. Корзину НЕ очищаем до закрытия Mini App.
+            try {
+                localStorage.setItem(
+                    PENDING_SUBMIT_KEY,
+                    JSON.stringify({
+                        orderId: orderId,
+                        createdAt: Date.now()
+                    })
+                );
+            }
+            catch (storageError) {
+                alert('Не удалось сохранить состояние заказа: ' + storageError.message);
                 return;
             }
 
             isSending = true;
+            var checkoutButton = document.getElementById('checkout-button');
+            checkoutButton.disabled = true;
+            showToast('Отправляем заказ в Telegram...');
 
-            document.getElementById(
-                'checkout-button'
-            ).disabled = true;
-
-            showToast('Отправляем заказ...');
-
-            // Запоминаем корзину на случай, если sendData выбросит ошибку.
-            var cartBackup = cart.slice();
-            var savedCart = localStorage.getItem('autoparts_cart');
-            var savedPendingOrder = localStorage.getItem(PENDING_ORDER_KEY);
+            console.log('[CHECKOUT] Отправка заказа:', orderId);
+            console.log('[CHECKOUT] Telegram platform:', tg.platform);
+            console.log('[CHECKOUT] Telegram version:', tg.version);
 
             try {
-
-                // sendData передаёт заказ Telegram и закрывает Mini App.
-                // После успешного вызова очищаем старую корзину, чтобы при
-                // следующем открытии магазина товары прошлого заказа
-                // не добавлялись к новому заказу повторно.
-                cart = [];
-                localStorage.removeItem('autoparts_cart');
-                localStorage.removeItem(PENDING_ORDER_KEY);
-                saveCart();
-                renderCart();
-
+                // Вызов выполняется непосредственно в обработчике нажатия.
+                // Для ReplyKeyboard Mini App Telegram должен закрыть окно.
                 tg.sendData(jsonData);
+
+                // Если через 2.5 сек окно всё ещё активно, считаем,
+                // что Telegram не принял/не завершил отправку.
+                // Корзина и order_id остаются на месте для безопасной повторной попытки.
+                setTimeout(function() {
+                    if (isSending && document.visibilityState !== 'hidden') {
+                        isSending = false;
+                        localStorage.removeItem(PENDING_SUBMIT_KEY);
+
+                        var button = document.getElementById('checkout-button');
+                        if (button) {
+                            button.disabled = false;
+                        }
+
+                        console.error(
+                            '[CHECKOUT] Telegram не закрыл Mini App после sendData. ' +
+                            'Проверьте запуск через ReplyKeyboard WebApp-кнопку.'
+                        );
+
+                        alert(
+                            'Telegram не завершил отправку заказа.\n\n' +
+                            'Корзина сохранена. Закройте магазин, снова откройте его ' +
+                            'кнопкой «🛒 Открыть магазин» в сообщении бота и повторите попытку.\n\n' +
+                            'Не открывайте магазин через обычную ссылку или меню Telegram.'
+                        );
+                    }
+                }, 2500);
 
             }
             catch (error) {
-
-                // Если отправка не удалась, восстанавливаем корзину.
-                cart = cartBackup;
-
-                if (savedCart !== null) {
-                    localStorage.setItem('autoparts_cart', savedCart);
-                } else {
-                    localStorage.removeItem('autoparts_cart');
-                }
-
-                if (savedPendingOrder !== null) {
-                    localStorage.setItem(PENDING_ORDER_KEY, savedPendingOrder);
-                }
-
-                saveCart();
-                renderCart();
-
                 isSending = false;
+                localStorage.removeItem(PENDING_SUBMIT_KEY);
 
-                document.getElementById(
-                    'checkout-button'
-                ).disabled = false;
+                checkoutButton.disabled = false;
 
-                alert(
-                    'Ошибка отправки заказа: ' + error.message
-                );
-
+                console.error('[CHECKOUT] Ошибка Telegram sendData:', error);
+                alert('Ошибка отправки заказа: ' + error.message);
             }
-
         }
 
 

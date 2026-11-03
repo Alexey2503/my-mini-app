@@ -321,6 +321,65 @@
 
         var isSending = false;
 
+        // Ключи оформления хранятся локально, чтобы быстрая повторная
+        // отправка одной и той же корзины не создала второй заказ.
+        var PENDING_ORDER_KEY = 'autoparts_pending_order';
+        var ORDER_RETRY_WINDOW = 5 * 60 * 1000;
+
+        function createOrderId() {
+            if (window.crypto && window.crypto.randomUUID) {
+                return window.crypto.randomUUID();
+            }
+
+            return 'order-' + Date.now().toString(36) + '-' +
+                Math.random().toString(36).substring(2, 12);
+        }
+
+        function getOrderIdForCurrentCart() {
+            var fingerprint = JSON.stringify(
+                cart.map(function(item) {
+                    return {
+                        id: item.id,
+                        name: item.name
+                    };
+                })
+            );
+
+            var now = Date.now();
+            var pending = null;
+
+            try {
+                pending = JSON.parse(
+                    localStorage.getItem(PENDING_ORDER_KEY)
+                );
+            }
+            catch (e) {
+                pending = null;
+            }
+
+            if (
+                pending &&
+                pending.orderId &&
+                pending.fingerprint === fingerprint &&
+                now - pending.createdAt < ORDER_RETRY_WINDOW
+            ) {
+                return pending.orderId;
+            }
+
+            var orderId = createOrderId();
+
+            localStorage.setItem(
+                PENDING_ORDER_KEY,
+                JSON.stringify({
+                    orderId: orderId,
+                    fingerprint: fingerprint,
+                    createdAt: now
+                })
+            );
+
+            return orderId;
+        }
+
 
         // =====================================
         // НАВИГАЦИЯ
@@ -511,6 +570,9 @@
 
                 action: 'checkout',
 
+                // Один ключ сохраняется при повторной отправке этой корзины.
+                order_id: getOrderIdForCurrentCart(),
+
                 items: cart,
 
                 total: total,
@@ -551,6 +613,10 @@
                 document.getElementById(
                     'checkout-button'
                 ).disabled = false;
+
+                // sendData не был вызван успешно, поэтому этот ключ
+                // можно удалить. Следующая попытка создаст новый.
+                localStorage.removeItem(PENDING_ORDER_KEY);
 
                 alert(
                     'Ошибка отправки заказа: ' + error.message

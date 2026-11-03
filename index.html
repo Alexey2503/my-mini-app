@@ -1,595 +1,734 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f4f8fd">
     <title>AutoParts Store</title>
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
     <style>
+        :root {
+            --navy: #18324b;
+            --navy-2: #254761;
+            --blue: #2878e5;
+            --blue-dark: #1f63c4;
+            --cyan: #15a9d6;
+            --text: #20364b;
+            --muted: #718398;
+            --line: #e5edf5;
+            --surface: #ffffff;
+            --page: #f3f7fc;
+            --pale-blue: #eaf4ff;
+            --green: #1c9b70;
+            --shadow: 0 10px 30px rgba(28, 66, 105, .07);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { min-height: 100%; background: var(--page); }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #fff;
-            color: #000;
-            padding: 20px;
             margin: 0;
-            padding-bottom: 80px;
+            min-height: 100vh;
+            padding: 0 0 calc(92px + env(safe-area-inset-bottom));
+            color: var(--text);
+            background: var(--page);
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .screen {
-            display: none;
-        }
+        button, input { font: inherit; }
+        button { -webkit-tap-highlight-color: transparent; }
 
-        .screen.active {
-            display: block;
-        }
-
-        .btn {
-            background: #3390ec;
-            color: #fff;
-            border: none;
-            padding: 15px;
-            font-size: 16px;
-            border-radius: 10px;
+        .app-shell {
             width: 100%;
-            margin: 10px 0;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 0 18px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: calc(15px + env(safe-area-inset-top)) 0 17px;
+        }
+
+        .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+        .brand-mark {
+            width: 43px; height: 43px; flex: 0 0 43px;
+            display: grid; place-items: center;
+            color: #fff; border-radius: 14px;
+            background: linear-gradient(145deg, #2389ef, #1d65c8);
+            box-shadow: 0 7px 16px rgba(40, 120, 229, .23);
+        }
+        .brand-mark svg { width: 24px; height: 24px; }
+        .brand-name { color: var(--navy); font-size: 16px; font-weight: 850; letter-spacing: -.45px; line-height: 1.12; }
+        .brand-sub { margin-top: 3px; color: #8293a5; font-size: 9px; font-weight: 800; letter-spacing: 1.8px; }
+
+        .top-cart {
+            position: relative; width: 43px; height: 43px; flex: 0 0 43px;
+            border: 1px solid var(--line); border-radius: 14px;
+            display: grid; place-items: center; color: var(--navy);
+            background: #fff; box-shadow: 0 4px 14px rgba(35, 73, 110, .04);
             cursor: pointer;
         }
-
-        .btn-small {
-            width: auto;
-            padding: 10px 20px;
-            font-size: 14px;
+        .top-cart svg { width: 21px; height: 21px; }
+        .cart-badge {
+            position: absolute; top: -5px; right: -5px; min-width: 19px; height: 19px;
+            padding: 0 5px; display: none; align-items: center; justify-content: center;
+            border: 2px solid var(--page); border-radius: 20px;
+            color: white; background: var(--blue); font-size: 10px; font-weight: 800;
         }
 
-        .btn:disabled {
-            opacity: 0.5;
-        }
+        .screen { display: none; animation: screen-in .18s ease-out; }
+        .screen.active { display: block; }
+        @keyframes screen-in { from { opacity: .65; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card {
-            background: #f4f4f5;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
+        .hero {
+            position: relative; overflow: hidden;
+            min-height: 218px; padding: 23px 22px 21px;
+            border: 1px solid #dcecff; border-radius: 25px;
+            background: linear-gradient(118deg, #e9f4ff 0%, #f5faff 59%, #e0f3ff 100%);
+            box-shadow: var(--shadow);
         }
+        .hero::before {
+            content: ""; position: absolute; width: 220px; height: 220px;
+            top: -83px; right: -60px; border-radius: 50%;
+            border: 1px solid rgba(62, 145, 223, .13);
+            box-shadow: 0 0 0 22px rgba(62,145,223,.035), 0 0 0 46px rgba(62,145,223,.025);
+        }
+        .hero-art { position: absolute; width: 180px; height: 145px; right: -2px; bottom: 2px; opacity: .88; pointer-events: none; }
+        .hero-content { position: relative; z-index: 1; max-width: 390px; }
+        .eyebrow {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 7px 10px; border-radius: 20px;
+            color: #236cc2; background: rgba(255,255,255,.78);
+            font-size: 10px; font-weight: 850; letter-spacing: .8px;
+        }
+        .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: #21a7d8; }
+        .hero h1 { max-width: 330px; margin: 15px 0 8px; color: var(--navy); font-size: clamp(25px, 6vw, 34px); line-height: 1.08; letter-spacing: -1.1px; }
+        .hero p { max-width: 290px; margin: 0; color: #607991; font-size: 13px; line-height: 1.5; }
+        .primary-btn {
+            min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+            padding: 0 17px; margin-top: 17px; border: 0; border-radius: 13px;
+            color: #fff; background: linear-gradient(135deg, #3288ed, #246bd0);
+            box-shadow: 0 8px 18px rgba(40,120,229,.2);
+            font-size: 13px; font-weight: 800; cursor: pointer;
+        }
+        .primary-btn:active { transform: translateY(1px); }
+        .primary-btn svg { width: 16px; height: 16px; }
+
+        .benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 14px 0 26px; }
+        .benefit {
+            min-height: 66px; display: flex; align-items: center; gap: 8px;
+            padding: 10px 9px; border: 1px solid var(--line); border-radius: 15px;
+            background: rgba(255,255,255,.86);
+        }
+        .benefit-icon { width: 30px; height: 30px; flex: 0 0 30px; display: grid; place-items: center; border-radius: 10px; color: var(--blue); background: var(--pale-blue); }
+        .benefit-icon svg { width: 16px; height: 16px; }
+        .benefit strong { display: block; color: var(--navy); font-size: 10px; line-height: 1.2; }
+        .benefit span { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.2; }
+
+        .section-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin: 0 1px 13px; }
+        .section-title { margin: 0; color: var(--navy); font-size: 20px; font-weight: 850; letter-spacing: -.55px; }
+        .section-caption { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+        .text-link { padding: 5px 0; border: 0; color: var(--blue); background: transparent; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .product-card {
+            min-width: 0; overflow: hidden; padding: 11px;
+            border: 1px solid var(--line); border-radius: 18px;
+            background: var(--surface); box-shadow: 0 5px 18px rgba(27,64,101,.035);
+        }
+        .product-visual {
+            position: relative; height: 112px; overflow: hidden;
+            display: grid; place-items: center; margin-bottom: 11px;
+            border-radius: 13px; background: linear-gradient(145deg, #f0f7ff, #e8f2fb);
+        }
+        .product-visual::after { content: ""; position: absolute; width: 105px; height: 105px; border-radius: 50%; border: 1px solid rgba(44,126,207,.11); box-shadow: 0 0 0 13px rgba(44,126,207,.035); }
+        .product-visual svg { position: relative; z-index: 1; width: 94px; height: 94px; filter: drop-shadow(0 7px 5px rgba(31,71,109,.12)); }
+        .product-tag { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 5px 7px; border-radius: 7px; color: #3475bb; background: rgba(255,255,255,.9); font-size: 9px; font-weight: 800; }
+        .product-name { min-height: 36px; margin: 0; color: var(--navy); font-size: 12px; font-weight: 800; line-height: 1.35; }
+        .product-code { margin: 5px 0 9px; color: #8a9bad; font-size: 10px; }
+        .product-bottom { display: flex; align-items: center; justify-content: space-between; gap: 7px; }
+        .product-price { color: var(--navy); font-size: 15px; font-weight: 900; white-space: nowrap; }
+        .add-btn {
+            width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center;
+            border: 0; border-radius: 11px; color: #fff;
+            background: var(--blue); box-shadow: 0 5px 11px rgba(40,120,229,.18); cursor: pointer;
+        }
+        .add-btn svg { width: 17px; height: 17px; }
+
+        .page-heading { padding: 8px 1px 17px; }
+        .page-heading h1 { margin: 0; color: var(--navy); font-size: 27px; font-weight: 850; letter-spacing: -.8px; }
+        .page-heading p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+        .search-wrap { position: relative; margin: 0 0 13px; }
+        .search-wrap svg { position: absolute; top: 50%; left: 14px; width: 18px; height: 18px; color: #91a3b5; transform: translateY(-50%); pointer-events: none; }
+        .search-input {
+            width: 100%; height: 48px; padding: 0 14px 0 42px;
+            border: 1px solid var(--line); border-radius: 14px; outline: none;
+            color: var(--text); background: white; font-size: 13px;
+            box-shadow: 0 4px 14px rgba(31,69,107,.025);
+        }
+        .search-input:focus { border-color: #9cc8f6; box-shadow: 0 0 0 3px rgba(40,120,229,.08); }
+        .filter-row { display: flex; gap: 8px; overflow-x: auto; padding: 1px 0 13px; scrollbar-width: none; }
+        .filter-row::-webkit-scrollbar { display: none; }
+        .filter-chip { flex: 0 0 auto; padding: 9px 13px; border: 1px solid var(--line); border-radius: 20px; color: #62778b; background: white; font-size: 11px; font-weight: 750; cursor: pointer; }
+        .filter-chip.active { border-color: var(--blue); color: white; background: var(--blue); }
+        .catalog-count { margin: 0 1px 10px; color: var(--muted); font-size: 11px; }
+
+        .empty-state { padding: 27px 15px; text-align: center; border: 1px dashed #ccd9e6; border-radius: 16px; color: var(--muted); background: rgba(255,255,255,.7); font-size: 13px; }
+
+        .cart-layout { display: grid; gap: 13px; }
+        .cart-item {
+            display: flex; align-items: center; gap: 11px;
+            padding: 12px; border: 1px solid var(--line); border-radius: 16px;
+            background: white;
+        }
+        .cart-thumb { width: 55px; height: 55px; flex: 0 0 55px; display: grid; place-items: center; border-radius: 12px; background: #edf5fd; }
+        .cart-thumb svg { width: 40px; height: 40px; }
+        .cart-info { min-width: 0; flex: 1; }
+        .cart-name { color: var(--navy); font-size: 12px; font-weight: 800; line-height: 1.35; }
+        .cart-unit { margin-top: 4px; color: var(--muted); font-size: 10px; }
+        .cart-item-right { display: flex; align-items: end; flex-direction: column; gap: 8px; }
+        .cart-line-total { color: var(--navy); font-size: 13px; font-weight: 900; white-space: nowrap; }
+        .quantity-control { display: flex; align-items: center; gap: 9px; padding: 4px; border: 1px solid var(--line); border-radius: 20px; background: #f8fbff; }
+        .quantity-control button { width: 23px; height: 23px; display: grid; place-items: center; border: 0; border-radius: 50%; color: var(--blue); background: white; font-size: 17px; line-height: 1; cursor: pointer; }
+        .quantity-control span { min-width: 10px; color: var(--navy); font-size: 11px; font-weight: 850; text-align: center; }
+        .cart-summary { margin-top: 3px; padding: 17px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: var(--shadow); }
+        .summary-row { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; color: var(--muted); font-size: 12px; }
+        .summary-total { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--navy); font-size: 14px; font-weight: 850; }
+        .summary-total strong { font-size: 21px; letter-spacing: -.5px; }
+        .checkout-btn { width: 100%; min-height: 49px; margin-top: 15px; border: 0; border-radius: 13px; color: white; background: linear-gradient(135deg, #3288ed, #246bd0); box-shadow: 0 8px 18px rgba(40,120,229,.18); font-size: 13px; font-weight: 850; cursor: pointer; }
+        .checkout-btn:disabled { opacity: .55; cursor: not-allowed; }
+        .cart-note { margin: 10px 2px 0; color: #8b9cad; font-size: 10px; line-height: 1.45; text-align: center; }
+
+        .profile-card { padding: 19px; border: 1px solid var(--line); border-radius: 20px; background: white; box-shadow: var(--shadow); }
+        .profile-avatar { width: 55px; height: 55px; display: grid; place-items: center; margin-bottom: 13px; border-radius: 17px; color: var(--blue); background: var(--pale-blue); }
+        .profile-avatar svg { width: 27px; height: 27px; }
+        .profile-name { margin: 0; color: var(--navy); font-size: 18px; font-weight: 850; }
+        .profile-status { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 6px 9px; border-radius: 20px; color: #16815e; background: #eaf8f1; font-size: 10px; font-weight: 800; }
+        .profile-status span { width: 6px; height: 6px; border-radius: 50%; background: #28b47e; }
+        .profile-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 17px; }
+        .profile-stat { padding: 13px; border-radius: 13px; background: #f5f9fd; }
+        .profile-stat strong { display: block; color: var(--navy); font-size: 18px; }
+        .profile-stat span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+        .profile-description { margin: 15px 1px 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
 
         .nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #f4f4f5;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            border-top: 1px solid #ddd;
+            position: fixed; z-index: 50; left: 50%; bottom: 0;
+            width: min(100%, 760px); transform: translateX(-50%);
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px;
+            padding: 9px 13px calc(9px + env(safe-area-inset-bottom));
+            border-top: 1px solid rgba(223,233,243,.95);
+            background: rgba(255,255,255,.96); backdrop-filter: blur(16px);
+            box-shadow: 0 -7px 25px rgba(28,62,96,.045);
         }
-
-        .nav-item {
-            text-align: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .nav-item.active {
-            color: #3390ec;
-            font-weight: bold;
-        }
-
-        .nav-icon {
-            font-size: 24px;
-            display: block;
-        }
+        .nav-item { position: relative; min-height: 52px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px; border: 0; border-radius: 12px; color: #8b9bad; background: transparent; font-size: 10px; font-weight: 750; cursor: pointer; }
+        .nav-item svg { width: 20px; height: 20px; stroke: currentColor; }
+        .nav-item.active { color: var(--blue); background: #eff6ff; }
 
         .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #4caf50;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 20px;
-            display: none;
-            z-index: 1000;
+            position: fixed; z-index: 100; top: calc(12px + env(safe-area-inset-top)); left: 50%;
+            max-width: calc(100% - 32px); padding: 12px 17px; border-radius: 13px;
+            color: white; background: #183b5a; box-shadow: 0 8px 24px rgba(18,48,74,.2);
+            font-size: 12px; font-weight: 750; text-align: center;
+            opacity: 0; pointer-events: none; transform: translate(-50%, -8px); transition: .2s ease;
         }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-        .product {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            gap: 10px;
-        }
-
-        .cart-item {
-            padding: 10px 0;
-            border-bottom: 1px solid #ddd;
+        @media (max-width: 370px) {
+            .app-shell { padding-left: 13px; padding-right: 13px; }
+            .hero { padding: 19px 16px; }
+            .hero-art { width: 145px; right: -19px; opacity: .65; }
+            .benefits { gap: 6px; }
+            .benefit { padding: 8px 6px; gap: 5px; }
+            .benefit-icon { width: 25px; height: 25px; flex-basis: 25px; }
+            .benefit strong { font-size: 9px; }
+            .benefit span { font-size: 8px; }
+            .product-card { padding: 8px; }
+            .product-visual { height: 98px; }
         }
     </style>
 </head>
-
 <body>
-
-    <div class="toast" id="toast">Успешно!</div>
-
-    <!-- ГЛАВНАЯ -->
-
-    <div class="screen active" id="screen-home">
-
-        <h1 id="greeting">Привет!</h1>
-
-        <p>Добро пожаловать в AutoParts Store</p>
-
-        <div class="card">
-            <h3>🚀 Статус системы</h3>
-            <p>Приложение работает.</p>
-        </div>
-
-        <button class="btn"
-            onclick="showScreen('catalog', document.querySelectorAll('.nav-item')[1])">
-            Перейти в каталог
-        </button>
-
-    </div>
-
-
-    <!-- КАТАЛОГ -->
-
-    <div class="screen" id="screen-catalog">
-
-        <h1>Каталог</h1>
-        <p>Масла, фильтры и запчасти</p>
-
-        <div class="card">
-
-            <div class="product">
-
-                <div>
-                    <b>Масляный фильтр MANN</b>
-                    <br>
-                    <small>Артикул: W712/95</small>
-                    <br>
-                    <b style="color:#3390ec;">850 ₽</b>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.2 6.2a5 5 0 0 0-6.4 6.4L3.5 17a2.1 2.1 0 0 0 3 3l4.4-4.4a5 5 0 0 0 6.4-6.4l-3 3-3.5-3.5 3.4-3.5Z"/>
+                    </svg>
                 </div>
-
-                <button class="btn btn-small"
-                    onclick="addToCart('Масляный фильтр MANN', 850)">
-                    В корзину
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="product">
-
                 <div>
-                    <b>Моторное масло Shell 5W-40</b>
-                    <br>
-                    <small>Артикул: 550040755</small>
-                    <br>
-                    <b style="color:#3390ec;">4 200 ₽</b>
+                    <div class="brand-name">AutoParts Store</div>
+                    <div class="brand-sub">АВТОЗАПЧАСТИ И МАСЛА</div>
                 </div>
-
-                <button class="btn btn-small"
-                    onclick="addToCart('Моторное масло Shell 5W-40', 4200)">
-                    В корзину
-                </button>
-
             </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- КОРЗИНА -->
-
-    <div class="screen" id="screen-cart">
-
-        <h1>Корзина</h1>
-
-        <p>Ваши выбранные товары</p>
-
-        <div id="cart-container">
-            <p style="text-align:center; color:#999;">
-                Корзина пуста
-            </p>
-        </div>
-
-        <div id="cart-footer" style="display:none;">
-
-            <h3>
-                Итого:
-                <span id="total-price">0</span> ₽
-            </h3>
-
-            <button class="btn" id="checkout-button"
-                onclick="checkout()">
-                Оформить заказ
+            <button class="top-cart" type="button" aria-label="Открыть корзину" onclick="openCart()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 1.9-1.5L20 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>
+                </svg>
+                <span class="cart-badge" id="cart-badge">0</span>
             </button>
+        </header>
 
-        </div>
+        <!-- ГЛАВНАЯ -->
+        <main>
+            <section class="screen active" id="screen-home">
+                <div class="hero">
+                    <div class="hero-content">
+                        <div class="eyebrow"><span class="eyebrow-dot"></span> AUTO PARTS • ONLINE</div>
+                        <h1>Всё нужное для вашего автомобиля</h1>
+                        <p>Масла, фильтры и автотовары. Выбирайте нужное и оформляйте заказ прямо в Telegram.</p>
+                        <button class="primary-btn" onclick="openCatalog()">
+                            Перейти в каталог
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                        </button>
+                    </div>
+                    <svg class="hero-art" viewBox="0 0 190 150" fill="none" aria-hidden="true">
+                        <path d="M20 112c18-24 40-37 70-37 28 0 49 13 79 36" stroke="#91c5ef" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M37 109h116l-8-24c-2-7-8-12-16-13l-20-3-15-19H75L57 79l-17 5-3 25Z" fill="#75b7ed" opacity=".28" stroke="#438fd5" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="m65 78 14-20h24l13 20H65Z" fill="#fff" stroke="#438fd5" stroke-width="2"/>
+                        <path d="M45 91h104" stroke="#438fd5" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="63" cy="111" r="12" fill="#fff" stroke="#367fc4" stroke-width="4"/><circle cx="63" cy="111" r="4" fill="#367fc4"/>
+                        <circle cx="132" cy="111" r="12" fill="#fff" stroke="#367fc4" stroke-width="4"/><circle cx="132" cy="111" r="4" fill="#367fc4"/>
+                        <path d="M149 43h20M159 33v20" stroke="#54a4e4" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="34" cy="48" r="5" fill="#8bc7f3"/><circle cx="151" cy="22" r="4" fill="#8bc7f3"/>
+                    </svg>
+                </div>
 
+                <div class="benefits">
+                    <div class="benefit">
+                        <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.5 2.8 7.8 7 10 4.2-2.2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                        <div><strong>Проверка заказа</strong><span>Перед сохранением</span></div>
+                    </div>
+                    <div class="benefit">
+                        <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+                        <div><strong>Быстро</strong><span>Через Telegram</span></div>
+                    </div>
+                    <div class="benefit">
+                        <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v13H4zM8 7V4h8v3M8 12h8"/></svg></div>
+                        <div><strong>Удобно</strong><span>Корзина в телефоне</span></div>
+                    </div>
+                </div>
+
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Товары каталога</h2>
+                        <p class="section-caption">Выберите то, что нужно вашему авто</p>
+                    </div>
+                    <button class="text-link" onclick="openCatalog()">Все товары →</button>
+                </div>
+                <div class="product-grid" id="home-products"></div>
+            </section>
+
+            <!-- КАТАЛОГ -->
+            <section class="screen" id="screen-catalog">
+                <div class="page-heading">
+                    <h1>Каталог</h1>
+                    <p>Подберите необходимые товары</p>
+                </div>
+                <div class="search-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg>
+                    <input class="search-input" id="product-search" type="search" placeholder="Название или артикул" autocomplete="off">
+                </div>
+                <div class="filter-row">
+                    <button class="filter-chip active" data-filter="all" onclick="setCategory('all', this)">Все товары</button>
+                    <button class="filter-chip" data-filter="filters" onclick="setCategory('filters', this)">Фильтры</button>
+                    <button class="filter-chip" data-filter="oils" onclick="setCategory('oils', this)">Моторные масла</button>
+                </div>
+                <p class="catalog-count" id="catalog-count"></p>
+                <div class="product-grid" id="catalog-products"></div>
+            </section>
+
+            <!-- КОРЗИНА -->
+            <section class="screen" id="screen-cart">
+                <div class="page-heading">
+                    <h1>Корзина</h1>
+                    <p>Проверьте товары перед оформлением</p>
+                </div>
+                <div id="cart-container" class="cart-layout"></div>
+                <div id="cart-footer" class="cart-summary" style="display:none;">
+                    <div class="summary-row"><span>Товаров в корзине</span><strong id="cart-items-count">0</strong></div>
+                    <div class="summary-total"><span>Итого к оплате</span><strong><span id="total-price">0</span> ₽</strong></div>
+                    <button class="checkout-btn" id="checkout-button" onclick="checkout()">Оформить заказ</button>
+                    <p class="cart-note">Состав заказа и цены будут дополнительно проверены при получении заказа ботом.</p>
+                </div>
+            </section>
+
+            <!-- ПРОФИЛЬ -->
+            <section class="screen" id="screen-profile">
+                <div class="page-heading">
+                    <h1>Профиль</h1>
+                    <p>Информация о вашем подключении</p>
+                </div>
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4.1 3.4-6 8-6s7.3 1.9 8 6"/></svg>
+                    </div>
+                    <h2 class="profile-name" id="profile-name">Покупатель</h2>
+                    <div class="profile-status"><span></span> Подключено через Telegram</div>
+                    <div class="profile-info">
+                        <div class="profile-stat"><strong id="profile-cart-count">0</strong><span>Товаров в корзине</span></div>
+                        <div class="profile-stat"><strong>Онлайн</strong><span>Статус магазина</span></div>
+                    </div>
+                    <p class="profile-description">Данные покупателя Telegram передаются боту автоматически при оформлении заказа. Для связи и подтверждения заказа используйте чат с ботом.</p>
+                </div>
+            </section>
+        </main>
     </div>
 
-
-    <!-- ПРОФИЛЬ -->
-
-    <div class="screen" id="screen-profile">
-
-        <h1>Профиль</h1>
-
-        <div class="card">
-
-            <p>
-                <b>Статус:</b>
-                <span>Подключено через Telegram</span>
-            </p>
-
-            <p>
-                <b>Корзина:</b>
-                <span id="profile-cart-count">0 товаров</span>
-            </p>
-
-            <p style="color:#777; font-size:13px;">
-                Информация о покупателе определяется ботом
-                при оформлении заказа.
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <!-- НИЖНЕЕ МЕНЮ -->
-
-    <div class="nav">
-
-        <div class="nav-item active"
-            onclick="showScreen('home', this)">
-
-            <span class="nav-icon">🏠</span>
+    <nav class="nav" aria-label="Основная навигация">
+        <button class="nav-item active" data-screen="home" onclick="showScreen('home', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z"/></svg>
             Главная
-
-        </div>
-
-        <div class="nav-item"
-            onclick="showScreen('catalog', this)">
-
-            <span class="nav-icon">📦</span>
+        </button>
+        <button class="nav-item" data-screen="catalog" onclick="showScreen('catalog', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v15H4zM8 5V3h8v2M8 10h8M8 14h5"/></svg>
             Каталог
-
-        </div>
-
-        <div class="nav-item"
-            onclick="showScreen('cart', this)">
-
-            <span class="nav-icon">🛒</span>
+        </button>
+        <button class="nav-item" data-screen="cart" onclick="showScreen('cart', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 1.9-1.5L20 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>
             Корзина
-
-        </div>
-
-        <div class="nav-item"
-            onclick="showScreen('profile', this)">
-
-            <span class="nav-icon">👤</span>
+        </button>
+        <button class="nav-item" data-screen="profile" onclick="showScreen('profile', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4.1 3.4-6 8-6s7.3 1.9 8 6"/></svg>
             Профиль
+        </button>
+    </nav>
 
-        </div>
-
-    </div>
-
+    <div class="toast" id="toast">Добавлено в корзину</div>
 
     <script>
-
         // =====================================
         // TELEGRAM
         // =====================================
 
-        var tg = window.Telegram
-            ? window.Telegram.WebApp
-            : null;
-
+        var tg = window.Telegram ? window.Telegram.WebApp : null;
         if (tg) {
             tg.ready();
             tg.expand();
         }
 
+        // =====================================
+        // КАТАЛОГ
+        // =====================================
+
+        var PRODUCTS = [
+            {
+                name: 'Масляный фильтр MANN',
+                price: 850,
+                code: 'W712/95',
+                category: 'filters',
+                type: 'filter',
+                label: 'ФИЛЬТР'
+            },
+            {
+                name: 'Моторное масло Shell 5W-40',
+                price: 4200,
+                code: '550040755',
+                category: 'oils',
+                type: 'oil',
+                label: 'МОТОРНОЕ МАСЛО'
+            }
+        ];
+
+        var activeCategory = 'all';
+        var searchQuery = '';
+
+        function formatPrice(value) {
+            return Number(value).toLocaleString('ru-RU');
+        }
+
+        function productPicture(type) {
+            if (type === 'filter') {
+                return '<svg viewBox="0 0 120 120" fill="none" aria-hidden="true">' +
+                    '<ellipse cx="60" cy="91" rx="29" ry="8" fill="#b7cde0" opacity=".45"/>' +
+                    '<path d="M39 39c0-5 9-9 21-9s21 4 21 9v43c0 6-9 10-21 10S39 88 39 82V39Z" fill="#2878c9" stroke="#1e5e9f" stroke-width="2"/>' +
+                    '<ellipse cx="60" cy="39" rx="21" ry="9" fill="#59a4e9" stroke="#1e5e9f" stroke-width="2"/>' +
+                    '<path d="M42 49c7 5 29 5 36 0M42 59c7 5 29 5 36 0M42 69c7 5 29 5 36 0" stroke="#a9d7ff" stroke-width="2" opacity=".8"/>' +
+                    '<path d="M50 30v-7h20v7" stroke="#1e5e9f" stroke-width="3" stroke-linecap="round"/>' +
+                    '<path d="M49 77h22" stroke="#d6ebff" stroke-width="3" stroke-linecap="round"/>' +
+                    '</svg>';
+            }
+            return '<svg viewBox="0 0 120 120" fill="none" aria-hidden="true">' +
+                '<ellipse cx="61" cy="94" rx="31" ry="7" fill="#b7cde0" opacity=".45"/>' +
+                '<path d="M43 35h34c4 0 7 3 7 7v42c0 5-4 8-9 8H45c-5 0-9-3-9-8V51c0-4 2-7 6-9l1-7Z" fill="#f0c84a" stroke="#b58a1b" stroke-width="2"/>' +
+                '<path d="M46 35V24h24v11M51 24v-5h15v5" stroke="#b58a1b" stroke-width="3" stroke-linejoin="round"/>' +
+                '<path d="M77 46h13c5 0 8 3 8 8v5H83" fill="#f0c84a" stroke="#b58a1b" stroke-width="2"/>' +
+                '<path d="M43 55h38v20H43z" fill="#fff" opacity=".92"/>' +
+                '<path d="M51 61h22M51 67h15" stroke="#47789e" stroke-width="3" stroke-linecap="round"/>' +
+                '<path d="M43 81h38" stroke="#d6a92b" stroke-width="2"/>' +
+                '</svg>';
+        }
+
+        function productCard(product) {
+            return '<article class="product-card">' +
+                '<div class="product-visual">' +
+                    '<span class="product-tag">' + product.label + '</span>' +
+                    productPicture(product.type) +
+                '</div>' +
+                '<h3 class="product-name">' + product.name + '</h3>' +
+                '<p class="product-code">Артикул: ' + product.code + '</p>' +
+                '<div class="product-bottom">' +
+                    '<span class="product-price">' + formatPrice(product.price) + ' ₽</span>' +
+                    '<button class="add-btn" type="button" aria-label="Добавить ' + product.name + ' в корзину" onclick="addToCart(\'' + product.name + '\', ' + product.price + ')">' +
+                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>' +
+                    '</button>' +
+                '</div>' +
+            '</article>';
+        }
+
+        function renderHomeProducts() {
+            var container = document.getElementById('home-products');
+            container.innerHTML = PRODUCTS.map(productCard).join('');
+        }
+
+        function renderProducts() {
+            var filtered = PRODUCTS.filter(function(product) {
+                var categoryMatches = activeCategory === 'all' || product.category === activeCategory;
+                var text = (product.name + ' ' + product.code).toLowerCase();
+                var searchMatches = text.indexOf(searchQuery.toLowerCase()) !== -1;
+                return categoryMatches && searchMatches;
+            });
+
+            document.getElementById('catalog-count').innerText =
+                'Найдено товаров: ' + filtered.length;
+
+            var container = document.getElementById('catalog-products');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">По вашему запросу ничего не найдено. Попробуйте изменить поиск.</div>';
+                return;
+            }
+            container.innerHTML = filtered.map(productCard).join('');
+        }
+
+        function setCategory(category, button) {
+            activeCategory = category;
+            var buttons = document.querySelectorAll('.filter-chip');
+            for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove('active');
+            if (button) button.classList.add('active');
+            renderProducts();
+        }
 
         // =====================================
-        // КОРЗИНА
+        // КОРЗИНА И ЗАЩИТА ОТ ДУБЛЕЙ
         // =====================================
 
-        // Локальные ключи оформления.
         var PENDING_ORDER_KEY = 'autoparts_pending_order';
         var PENDING_SUBMIT_KEY = 'autoparts_submit_attempt';
         var ORDER_RETRY_WINDOW = 5 * 60 * 1000;
 
-        // Если предыдущая отправка закрыла Mini App, Telegram откроет
-        // новую страницу при следующем запуске. Только тогда очищаем корзину.
-        // Если окно не закрылось, таймер ниже сохранит корзину и разблокирует кнопку.
         try {
-            var previousSubmit = JSON.parse(
-                localStorage.getItem(PENDING_SUBMIT_KEY)
-            );
-
+            var previousSubmit = JSON.parse(localStorage.getItem(PENDING_SUBMIT_KEY));
             if (previousSubmit && previousSubmit.orderId) {
                 localStorage.removeItem('autoparts_cart');
                 localStorage.removeItem(PENDING_ORDER_KEY);
                 console.log('[CHECKOUT] Предыдущая отправка завершилась закрытием Mini App. Корзина очищена.');
             }
-        }
-        catch (e) {
+        } catch (e) {
             console.log('[CHECKOUT] Не удалось проверить предыдущую отправку:', e);
         }
-
         localStorage.removeItem(PENDING_SUBMIT_KEY);
 
         var cart = [];
-
         try {
-            cart = JSON.parse(
-                localStorage.getItem('autoparts_cart')
-            ) || [];
-        }
-        catch (e) {
+            cart = JSON.parse(localStorage.getItem('autoparts_cart')) || [];
+            if (!Array.isArray(cart)) cart = [];
+        } catch (e) {
             cart = [];
         }
 
         var isSending = false;
 
         function createOrderId() {
-            if (window.crypto && window.crypto.randomUUID) {
-                return window.crypto.randomUUID();
-            }
-
-            return 'order-' + Date.now().toString(36) + '-' +
-                Math.random().toString(36).substring(2, 12);
+            if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+            return 'order-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 12);
         }
 
         function getOrderIdForCurrentCart() {
-            var fingerprint = JSON.stringify(
-                cart.map(function(item) {
-                    return {
-                        id: item.id,
-                        name: item.name
-                    };
-                })
-            );
-
+            var fingerprint = JSON.stringify(cart.map(function(item) {
+                return { id: item.id, name: item.name };
+            }));
             var now = Date.now();
             var pending = null;
+            try { pending = JSON.parse(localStorage.getItem(PENDING_ORDER_KEY)); }
+            catch (e) { pending = null; }
 
-            try {
-                pending = JSON.parse(
-                    localStorage.getItem(PENDING_ORDER_KEY)
-                );
-            }
-            catch (e) {
-                pending = null;
-            }
-
-            if (
-                pending &&
-                pending.orderId &&
-                pending.fingerprint === fingerprint &&
-                now - pending.createdAt < ORDER_RETRY_WINDOW
-            ) {
+            if (pending && pending.orderId && pending.fingerprint === fingerprint && now - pending.createdAt < ORDER_RETRY_WINDOW) {
                 return pending.orderId;
             }
 
             var orderId = createOrderId();
-
-            localStorage.setItem(
-                PENDING_ORDER_KEY,
-                JSON.stringify({
-                    orderId: orderId,
-                    fingerprint: fingerprint,
-                    createdAt: now
-                })
-            );
-
+            localStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({
+                orderId: orderId,
+                fingerprint: fingerprint,
+                createdAt: now
+            }));
             return orderId;
         }
-
 
         // =====================================
         // НАВИГАЦИЯ
         // =====================================
 
         function showScreen(name, navEl) {
-
             var screens = document.querySelectorAll('.screen');
-
-            for (var i = 0; i < screens.length; i++) {
-                screens[i].classList.remove('active');
-            }
-
-            document.getElementById(
-                'screen-' + name
-            ).classList.add('active');
-
+            for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
+            document.getElementById('screen-' + name).classList.add('active');
 
             var navItems = document.querySelectorAll('.nav-item');
+            for (var j = 0; j < navItems.length; j++) navItems[j].classList.remove('active');
 
-            for (var j = 0; j < navItems.length; j++) {
-                navItems[j].classList.remove('active');
+            if (navEl) navEl.classList.add('active');
+            else {
+                var target = document.querySelector('.nav-item[data-screen="' + name + '"]');
+                if (target) target.classList.add('active');
             }
 
-            if (navEl) {
-                navEl.classList.add('active');
-            }
-
-            if (name === 'cart') {
-                renderCart();
-            }
+            if (name === 'cart') renderCart();
+            if (name === 'catalog') renderProducts();
         }
 
+        function openCatalog() {
+            showScreen('catalog');
+        }
+
+        function openCart() {
+            showScreen('cart');
+        }
 
         // =====================================
         // УВЕДОМЛЕНИЯ
         // =====================================
 
-        function showToast(msg) {
-
+        var toastTimer = null;
+        function showToast(message) {
             var toast = document.getElementById('toast');
-
-            toast.innerText = msg;
-            toast.style.display = 'block';
-
-            setTimeout(function() {
-                toast.style.display = 'none';
-            }, 2500);
+            toast.innerText = message;
+            toast.classList.add('show');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(function() {
+                toast.classList.remove('show');
+            }, 2200);
         }
 
-
         // =====================================
-        // СОХРАНЕНИЕ КОРЗИНЫ
+        // СОХРАНЕНИЕ И ОТОБРАЖЕНИЕ КОРЗИНЫ
         // =====================================
 
         function saveCart() {
-
-            localStorage.setItem(
-                'autoparts_cart',
-                JSON.stringify(cart)
-            );
-
-            document.getElementById(
-                'profile-cart-count'
-            ).innerText = cart.length + ' товаров';
+            localStorage.setItem('autoparts_cart', JSON.stringify(cart));
+            document.getElementById('profile-cart-count').innerText = cart.length;
+            var badge = document.getElementById('cart-badge');
+            badge.innerText = cart.length;
+            badge.style.display = cart.length ? 'flex' : 'none';
         }
-
-
-        // =====================================
-        // ДОБАВЛЕНИЕ ТОВАРА
-        // =====================================
 
         function addToCart(name, price) {
-
             if (isSending) return;
-
-            cart.push({
-                name: name,
-                price: price,
-                id: Date.now()
-            });
-
+            cart.push({ name: name, price: price, id: Date.now() + Math.floor(Math.random() * 1000) });
             saveCart();
-
-            showToast(name + ' добавлен в корзину');
+            if (document.getElementById('screen-cart').classList.contains('active')) renderCart();
+            showToast('Добавлено в корзину');
         }
 
-
-        // =====================================
-        // ОТОБРАЖЕНИЕ КОРЗИНЫ
-        // =====================================
-
-        function renderCart() {
-
-            var container = document.getElementById(
-                'cart-container'
-            );
-
-            var footer = document.getElementById(
-                'cart-footer'
-            );
-
-            if (cart.length === 0) {
-
-                container.innerHTML =
-                    '<p style="text-align:center;color:#999;">Корзина пуста</p>';
-
-                footer.style.display = 'none';
-
-                return;
-            }
-
-            var html = '';
-            var total = 0;
-
-            for (var i = 0; i < cart.length; i++) {
-
-                total += cart[i].price;
-
-                html +=
-                    '<div class="cart-item">' +
-                    '<b>' + cart[i].name + '</b><br>' +
-                    cart[i].price + ' ₽' +
-                    '<br>' +
-                    '<button class="btn btn-small" ' +
-                    'onclick="removeFromCart(' + i + ')">' +
-                    'Удалить' +
-                    '</button>' +
-                    '</div>';
-            }
-
-            container.innerHTML = html;
-
-            document.getElementById(
-                'total-price'
-            ).innerText = total.toLocaleString('ru-RU');
-
-            footer.style.display = 'block';
-        }
-
-
-        // =====================================
-        // УДАЛЕНИЕ ТОВАРА
-        // =====================================
-
-        function removeFromCart(index) {
-
+        function changeCartQuantity(name, delta) {
             if (isSending) return;
-
-            cart.splice(index, 1);
-
+            var index = -1;
+            for (var i = 0; i < cart.length; i++) {
+                if (cart[i].name === name) { index = i; break; }
+            }
+            if (delta > 0) {
+                var product = PRODUCTS.find(function(p) { return p.name === name; });
+                if (product) cart.push({ name: product.name, price: product.price, id: Date.now() + Math.floor(Math.random() * 1000) });
+            } else if (index !== -1) {
+                cart.splice(index, 1);
+            }
             saveCart();
             renderCart();
         }
 
+        function renderCart() {
+            var container = document.getElementById('cart-container');
+            var footer = document.getElementById('cart-footer');
+
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="empty-state">' +
+                    '<div style="font-size:30px;margin-bottom:8px;">🛒</div>' +
+                    '<strong style="display:block;color:#20364b;margin-bottom:5px;">Корзина пока пуста</strong>' +
+                    'Добавьте товары из каталога, и они появятся здесь.' +
+                    '<br><button class="text-link" style="margin-top:10px;" onclick="openCatalog()">Перейти в каталог →</button>' +
+                    '</div>';
+                footer.style.display = 'none';
+                return;
+            }
+
+            var groups = {};
+            for (var i = 0; i < cart.length; i++) {
+                var item = cart[i];
+                if (!groups[item.name]) groups[item.name] = { name: item.name, price: item.price, quantity: 0, type: 'filter' };
+                groups[item.name].quantity++;
+            }
+
+            var html = '';
+            var total = 0;
+            var names = Object.keys(groups);
+            for (var j = 0; j < names.length; j++) {
+                var group = groups[names[j]];
+                var product = PRODUCTS.find(function(p) { return p.name === group.name; });
+                var type = product ? product.type : 'filter';
+                var lineTotal = group.price * group.quantity;
+                total += lineTotal;
+                html += '<div class="cart-item">' +
+                    '<div class="cart-thumb">' + productPicture(type) + '</div>' +
+                    '<div class="cart-info">' +
+                        '<div class="cart-name">' + group.name + '</div>' +
+                        '<div class="cart-unit">' + formatPrice(group.price) + ' ₽ за шт.</div>' +
+                    '</div>' +
+                    '<div class="cart-item-right">' +
+                        '<div class="cart-line-total">' + formatPrice(lineTotal) + ' ₽</div>' +
+                        '<div class="quantity-control">' +
+                            '<button type="button" aria-label="Уменьшить количество" onclick="changeCartQuantity(\'' + group.name + '\', -1)">−</button>' +
+                            '<span>' + group.quantity + '</span>' +
+                            '<button type="button" aria-label="Увеличить количество" onclick="changeCartQuantity(\'' + group.name + '\', 1)">+</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }
+
+            container.innerHTML = html;
+            document.getElementById('total-price').innerText = formatPrice(total);
+            document.getElementById('cart-items-count').innerText = cart.length;
+            footer.style.display = 'block';
+        }
 
         // =====================================
-        // ОФОРМЛЕНИЕ ЗАКАЗА
+        // ОФОРМЛЕНИЕ ЗАКАЗА — ЛОГИКА v104
         // =====================================
 
         function checkout() {
-
             if (isSending) {
                 showToast('Заказ уже отправляется...');
                 return;
             }
-
             if (cart.length === 0) {
                 alert('Корзина пуста!');
                 return;
             }
-
             if (!tg || typeof tg.sendData !== 'function') {
-                alert(
-                    'Не удалось вызвать Telegram sendData.\n\n' +
-                    'Откройте магазин именно кнопкой «🛒 Открыть магазин» ' +
-                    'в сообщении бота после команды /start.'
-                );
+                alert('Не удалось вызвать Telegram sendData.\n\nОткройте магазин именно кнопкой «🛒 Открыть магазин» в сообщении бота после команды /start.');
                 return;
             }
 
             var total = 0;
-            for (var i = 0; i < cart.length; i++) {
-                total += cart[i].price;
-            }
+            for (var i = 0; i < cart.length; i++) total += cart[i].price;
 
             var orderId;
-            try {
-                orderId = getOrderIdForCurrentCart();
-            }
+            try { orderId = getOrderIdForCurrentCart(); }
             catch (storageError) {
                 alert('Не удалось подготовить заказ: ' + storageError.message);
                 return;
@@ -602,25 +741,18 @@
                 total: total,
                 timestamp: new Date().toISOString()
             };
-
             var jsonData = JSON.stringify(orderData);
-
             if (jsonData.length > 4096) {
                 alert('Слишком большой заказ!');
                 return;
             }
 
-            // Сначала сохраняем факт попытки. Корзину НЕ очищаем до закрытия Mini App.
             try {
-                localStorage.setItem(
-                    PENDING_SUBMIT_KEY,
-                    JSON.stringify({
-                        orderId: orderId,
-                        createdAt: Date.now()
-                    })
-                );
-            }
-            catch (storageError) {
+                localStorage.setItem(PENDING_SUBMIT_KEY, JSON.stringify({
+                    orderId: orderId,
+                    createdAt: Date.now()
+                }));
+            } catch (storageError) {
                 alert('Не удалось сохранить состояние заказа: ' + storageError.message);
                 return;
             }
@@ -629,65 +761,51 @@
             var checkoutButton = document.getElementById('checkout-button');
             checkoutButton.disabled = true;
             showToast('Отправляем заказ в Telegram...');
-
             console.log('[CHECKOUT] Отправка заказа:', orderId);
             console.log('[CHECKOUT] Telegram platform:', tg.platform);
             console.log('[CHECKOUT] Telegram version:', tg.version);
 
             try {
-                // Вызов выполняется непосредственно в обработчике нажатия.
-                // Для ReplyKeyboard Mini App Telegram должен закрыть окно.
                 tg.sendData(jsonData);
-
-                // Если через 2.5 сек окно всё ещё активно, считаем,
-                // что Telegram не принял/не завершил отправку.
-                // Корзина и order_id остаются на месте для безопасной повторной попытки.
                 setTimeout(function() {
                     if (isSending && document.visibilityState !== 'hidden') {
                         isSending = false;
                         localStorage.removeItem(PENDING_SUBMIT_KEY);
-
                         var button = document.getElementById('checkout-button');
-                        if (button) {
-                            button.disabled = false;
-                        }
-
-                        console.error(
-                            '[CHECKOUT] Telegram не закрыл Mini App после sendData. ' +
-                            'Проверьте запуск через ReplyKeyboard WebApp-кнопку.'
-                        );
-
-                        alert(
-                            'Telegram не завершил отправку заказа.\n\n' +
-                            'Корзина сохранена. Закройте магазин, снова откройте его ' +
-                            'кнопкой «🛒 Открыть магазин» в сообщении бота и повторите попытку.\n\n' +
-                            'Не открывайте магазин через обычную ссылку или меню Telegram.'
-                        );
+                        if (button) button.disabled = false;
+                        console.error('[CHECKOUT] Telegram не закрыл Mini App после sendData.');
+                        alert('Telegram не завершил отправку заказа.\n\nКорзина сохранена. Закройте магазин, снова откройте его кнопкой «🛒 Открыть магазин» в сообщении бота и повторите попытку.');
                     }
                 }, 2500);
-
-            }
-            catch (error) {
+            } catch (error) {
                 isSending = false;
                 localStorage.removeItem(PENDING_SUBMIT_KEY);
-
                 checkoutButton.disabled = false;
-
                 console.error('[CHECKOUT] Ошибка Telegram sendData:', error);
                 alert('Ошибка отправки заказа: ' + error.message);
             }
         }
 
-
         // =====================================
         // ИНИЦИАЛИЗАЦИЯ
         // =====================================
 
+        renderHomeProducts();
+        renderProducts();
         saveCart();
-
         renderCart();
 
-    </script>
+        var searchInput = document.getElementById('product-search');
+        searchInput.addEventListener('input', function() {
+            searchQuery = this.value.trim();
+            renderProducts();
+        });
 
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            var telegramUser = tg.initDataUnsafe.user;
+            var displayName = [telegramUser.first_name, telegramUser.last_name].filter(Boolean).join(' ');
+            if (displayName) document.getElementById('profile-name').innerText = displayName;
+        }
+    </script>
 </body>
 </html>

@@ -1,163 +1,575 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>AutoParts Store</title>
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; background: #fff; color: #000; padding: 20px; margin: 0; padding-bottom: 80px; }
-        .screen { display: none; }
-        .screen.active { display: block; }
-        .btn { background: #3390ec; color: #fff; border: none; padding: 15px; font-size: 16px; border-radius: 10px; width: 100%; margin: 10px 0; cursor: pointer; }
-        .btn-small { width: auto; padding: 10px 20px; font-size: 14px; }
-        .card { background: #f4f4f5; padding: 15px; border-radius: 10px; margin: 10px 0; }
-        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: #f4f4f5; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
-        .nav-item { text-align: center; cursor: pointer; font-size: 12px; }
-        .nav-item.active { color: #3390ec; font-weight: bold; }
-        .nav-icon { font-size: 24px; display: block; }
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #4caf50; color: #fff; padding: 12px 24px; border-radius: 20px; display: none; z-index: 1000; }
-        .product { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
-        .cart-item { padding: 10px 0; border-bottom: 1px solid #ddd; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #fff;
+            color: #000;
+            padding: 20px;
+            margin: 0;
+            padding-bottom: 80px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .btn {
+            background: #3390ec;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 10px;
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        .btn-small {
+            width: auto;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+        }
+
+        .card {
+            background: #f4f4f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #f4f4f5;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+        }
+
+        .nav-item {
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: #3390ec;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4caf50;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 20px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .product {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            gap: 10px;
+        }
+
+        .cart-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
     </style>
 </head>
+
 <body>
+
     <div class="toast" id="toast">Успешно!</div>
 
+    <!-- ГЛАВНАЯ -->
+
     <div class="screen active" id="screen-home">
+
         <h1 id="greeting">Привет!</h1>
+
         <p>Добро пожаловать в AutoParts Store</p>
-        <div class="card"><h3>🚀 Статус системы</h3><p>Приложение работает.</p></div>
-        <button class="btn" onclick="showScreen('catalog', document.querySelectorAll('.nav-item')[1])">Перейти в каталог</button>
+
+        <div class="card">
+            <h3>🚀 Статус системы</h3>
+            <p>Приложение работает.</p>
+        </div>
+
+        <button class="btn"
+            onclick="showScreen('catalog', document.querySelectorAll('.nav-item')[1])">
+            Перейти в каталог
+        </button>
+
     </div>
+
+
+    <!-- КАТАЛОГ -->
 
     <div class="screen" id="screen-catalog">
-        <h1>Каталог</h1><p>Масла, фильтры и запчасти</p>
+
+        <h1>Каталог</h1>
+        <p>Масла, фильтры и запчасти</p>
+
         <div class="card">
+
             <div class="product">
-                <div><b>Масляный фильтр MANN</b><br><small>Артикул: W712/95</small><br><b style="color:#3390ec;">850 ₽</b></div>
-                <button class="btn btn-small" onclick="addToCart('Масляный фильтр MANN', 850)">В корзину</button>
+
+                <div>
+                    <b>Масляный фильтр MANN</b>
+                    <br>
+                    <small>Артикул: W712/95</small>
+                    <br>
+                    <b style="color:#3390ec;">850 ₽</b>
+                </div>
+
+                <button class="btn btn-small"
+                    onclick="addToCart('Масляный фильтр MANN', 850)">
+                    В корзину
+                </button>
+
             </div>
+
         </div>
+
+
         <div class="card">
+
             <div class="product">
-                <div><b>Моторное масло Shell 5W-40</b><br><small>Артикул: 550040755</small><br><b style="color:#3390ec;">4 200 ₽</b></div>
-                <button class="btn btn-small" onclick="addToCart('Моторное масло Shell 5W-40', 4200)">В корзину</button>
+
+                <div>
+                    <b>Моторное масло Shell 5W-40</b>
+                    <br>
+                    <small>Артикул: 550040755</small>
+                    <br>
+                    <b style="color:#3390ec;">4 200 ₽</b>
+                </div>
+
+                <button class="btn btn-small"
+                    onclick="addToCart('Моторное масло Shell 5W-40', 4200)">
+                    В корзину
+                </button>
+
             </div>
+
         </div>
+
     </div>
+
+
+    <!-- КОРЗИНА -->
 
     <div class="screen" id="screen-cart">
-        <h1>Корзина</h1><p>Ваши выбранные товары</p>
-        <div id="cart-container"><p style="text-align:center; color:#999;">Корзина пуста</p></div>
-        <div id="cart-footer" style="display:none;">
-            <h3>Итого: <span id="total-price">0</span> ₽</h3>
-            <button class="btn" onclick="checkout()">Оформить заказ</button>
+
+        <h1>Корзина</h1>
+
+        <p>Ваши выбранные товары</p>
+
+        <div id="cart-container">
+            <p style="text-align:center; color:#999;">
+                Корзина пуста
+            </p>
         </div>
+
+        <div id="cart-footer" style="display:none;">
+
+            <h3>
+                Итого:
+                <span id="total-price">0</span> ₽
+            </h3>
+
+            <button class="btn" id="checkout-button"
+                onclick="checkout()">
+                Оформить заказ
+            </button>
+
+        </div>
+
     </div>
+
+
+    <!-- ПРОФИЛЬ -->
 
     <div class="screen" id="screen-profile">
+
         <h1>Профиль</h1>
+
         <div class="card">
-            <p><b>ID:</b> <span id="user-id">Загрузка...</span></p>
-            <p><b>Имя:</b> <span id="user-name">Загрузка...</span></p>
+
+            <p>
+                <b>Статус:</b>
+                <span>Подключено через Telegram</span>
+            </p>
+
+            <p>
+                <b>Корзина:</b>
+                <span id="profile-cart-count">0 товаров</span>
+            </p>
+
+            <p style="color:#777; font-size:13px;">
+                Информация о покупателе определяется ботом
+                при оформлении заказа.
+            </p>
+
         </div>
+
     </div>
+
+
+    <!-- НИЖНЕЕ МЕНЮ -->
 
     <div class="nav">
-        <div class="nav-item active" onclick="showScreen('home', this)"><span class="nav-icon">🏠</span>Главная</div>
-        <div class="nav-item" onclick="showScreen('catalog', this)"><span class="nav-icon">📦</span>Каталог</div>
-        <div class="nav-item" onclick="showScreen('cart', this)"><span class="nav-icon">🛒</span>Корзина</div>
-        <div class="nav-item" onclick="showScreen('profile', this)"><span class="nav-icon">👤</span>Профиль</div>
+
+        <div class="nav-item active"
+            onclick="showScreen('home', this)">
+
+            <span class="nav-icon">🏠</span>
+            Главная
+
+        </div>
+
+        <div class="nav-item"
+            onclick="showScreen('catalog', this)">
+
+            <span class="nav-icon">📦</span>
+            Каталог
+
+        </div>
+
+        <div class="nav-item"
+            onclick="showScreen('cart', this)">
+
+            <span class="nav-icon">🛒</span>
+            Корзина
+
+        </div>
+
+        <div class="nav-item"
+            onclick="showScreen('profile', this)">
+
+            <span class="nav-icon">👤</span>
+            Профиль
+
+        </div>
+
     </div>
 
-    <script>
-        var tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
 
-        var user = tg.initDataUnsafe.user;
-        if (user) {
-            document.getElementById('greeting').innerText = 'Привет, ' + user.first_name + '!';
-            document.getElementById('user-name').innerText = user.first_name + ' ' + (user.last_name || '');
-            document.getElementById('user-id').innerText = user.id;
+    <script>
+
+        // =====================================
+        // TELEGRAM
+        // =====================================
+
+        var tg = window.Telegram
+            ? window.Telegram.WebApp
+            : null;
+
+        if (tg) {
+            tg.ready();
+            tg.expand();
         }
 
-        var cart = JSON.parse(localStorage.getItem('autoparts_cart')) || [];
+
+        // =====================================
+        // КОРЗИНА
+        // =====================================
+
+        var cart = [];
+
+        try {
+            cart = JSON.parse(
+                localStorage.getItem('autoparts_cart')
+            ) || [];
+        }
+        catch (e) {
+            cart = [];
+        }
+
+        var isSending = false;
+
+
+        // =====================================
+        // НАВИГАЦИЯ
+        // =====================================
 
         function showScreen(name, navEl) {
+
             var screens = document.querySelectorAll('.screen');
-            for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
-            document.getElementById('screen-' + name).classList.add('active');
+
+            for (var i = 0; i < screens.length; i++) {
+                screens[i].classList.remove('active');
+            }
+
+            document.getElementById(
+                'screen-' + name
+            ).classList.add('active');
+
 
             var navItems = document.querySelectorAll('.nav-item');
-            for (var i = 0; i < navItems.length; i++) navItems[i].classList.remove('active');
-            if (navEl) navEl.classList.add('active');
 
-            if (name === 'cart') renderCart();
+            for (var j = 0; j < navItems.length; j++) {
+                navItems[j].classList.remove('active');
+            }
+
+            if (navEl) {
+                navEl.classList.add('active');
+            }
+
+            if (name === 'cart') {
+                renderCart();
+            }
         }
+
+
+        // =====================================
+        // УВЕДОМЛЕНИЯ
+        // =====================================
 
         function showToast(msg) {
+
             var toast = document.getElementById('toast');
+
             toast.innerText = msg;
             toast.style.display = 'block';
-            setTimeout(function() { toast.style.display = 'none'; }, 2500);
+
+            setTimeout(function() {
+                toast.style.display = 'none';
+            }, 2500);
         }
 
+
+        // =====================================
+        // СОХРАНЕНИЕ КОРЗИНЫ
+        // =====================================
+
+        function saveCart() {
+
+            localStorage.setItem(
+                'autoparts_cart',
+                JSON.stringify(cart)
+            );
+
+            document.getElementById(
+                'profile-cart-count'
+            ).innerText = cart.length + ' товаров';
+        }
+
+
+        // =====================================
+        // ДОБАВЛЕНИЕ ТОВАРА
+        // =====================================
+
         function addToCart(name, price) {
-            cart.push({ name: name, price: price, id: Date.now() });
-            localStorage.setItem('autoparts_cart', JSON.stringify(cart));
+
+            if (isSending) return;
+
+            cart.push({
+                name: name,
+                price: price,
+                id: Date.now()
+            });
+
+            saveCart();
+
             showToast(name + ' добавлен в корзину');
         }
 
+
+        // =====================================
+        // ОТОБРАЖЕНИЕ КОРЗИНЫ
+        // =====================================
+
         function renderCart() {
-            var container = document.getElementById('cart-container');
-            var footer = document.getElementById('cart-footer');
+
+            var container = document.getElementById(
+                'cart-container'
+            );
+
+            var footer = document.getElementById(
+                'cart-footer'
+            );
 
             if (cart.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#999;">Корзина пуста</p>';
+
+                container.innerHTML =
+                    '<p style="text-align:center;color:#999;">Корзина пуста</p>';
+
                 footer.style.display = 'none';
+
                 return;
             }
 
             var html = '';
             var total = 0;
+
             for (var i = 0; i < cart.length; i++) {
+
                 total += cart[i].price;
-                html += '<div class="cart-item"><b>' + cart[i].name + '</b><br>' + cart[i].price + ' ₽</div>';
+
+                html +=
+                    '<div class="cart-item">' +
+                    '<b>' + cart[i].name + '</b><br>' +
+                    cart[i].price + ' ₽' +
+                    '<br>' +
+                    '<button class="btn btn-small" ' +
+                    'onclick="removeFromCart(' + i + ')">' +
+                    'Удалить' +
+                    '</button>' +
+                    '</div>';
             }
 
             container.innerHTML = html;
-            document.getElementById('total-price').innerText = total;
+
+            document.getElementById(
+                'total-price'
+            ).innerText = total.toLocaleString('ru-RU');
+
             footer.style.display = 'block';
         }
 
-               function checkout() {
+
+        // =====================================
+        // УДАЛЕНИЕ ТОВАРА
+        // =====================================
+
+        function removeFromCart(index) {
+
+            if (isSending) return;
+
+            cart.splice(index, 1);
+
+            saveCart();
+            renderCart();
+        }
+
+
+        // =====================================
+        // ОФОРМЛЕНИЕ ЗАКАЗА
+        // =====================================
+
+        function checkout() {
+
+            if (isSending) return;
+
             if (cart.length === 0) {
+
                 alert('Корзина пуста!');
+
+                return;
+            }
+
+            if (!tg || !tg.sendData) {
+
+                alert(
+                    'Откройте магазин через Telegram-бота!'
+                );
+
                 return;
             }
 
             var total = 0;
-            for (var i = 0; i < cart.length; i++) total += cart[i].price;
+
+            for (var i = 0; i < cart.length; i++) {
+                total += cart[i].price;
+            }
 
             var orderData = {
+
                 action: 'checkout',
-                user_id: user ? user.id : 'unknown',
-                user_name: user ? user.first_name : 'Гость',
+
                 items: cart,
+
                 total: total,
+
                 timestamp: new Date().toISOString()
+
             };
 
-            // Отправляем данные боту
-            tg.sendData(JSON.stringify(orderData));
-            
-            alert('Заказ отправлен! Сумма: ' + total + ' руб.');
-            
-            // Закрываем приложение через 2 секунды
-            setTimeout(function() { tg.close(); }, 2000);
+            var jsonData = JSON.stringify(orderData);
+
+            // Telegram ограничивает размер sendData
+            if (jsonData.length > 4096) {
+
+                alert('Слишком большой заказ!');
+
+                return;
+            }
+
+            isSending = true;
+
+            document.getElementById(
+                'checkout-button'
+            ).disabled = true;
+
+            showToast('Отправляем заказ...');
+
+            try {
+
+                // Отправляем заказ боту.
+                // Telegram сам закроет Mini App.
+                tg.sendData(jsonData);
+
+            }
+            catch (error) {
+
+                isSending = false;
+
+                document.getElementById(
+                    'checkout-button'
+                ).disabled = false;
+
+                alert(
+                    'Ошибка отправки заказа: ' + error.message
+                );
+
+            }
+
         }
+
+
+        // =====================================
+        // ИНИЦИАЛИЗАЦИЯ
+        // =====================================
+
+        saveCart();
+
+        renderCart();
+
     </script>
+
 </body>
 </html>

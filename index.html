@@ -132,9 +132,9 @@
             footer.style.display = 'block';
         }
 
-        function checkout() {
+               function checkout() {
             if (cart.length === 0) {
-                showToast('Корзина пуста!');
+                alert('Корзина пуста!');
                 return;
             }
 
@@ -150,15 +150,13 @@
                 timestamp: new Date().toISOString()
             };
 
-            // Тихая отправка данных боту
+            // Отправляем данные боту
             tg.sendData(JSON.stringify(orderData));
             
-            showToast('✅ Заказ успешно оформлен!');
-            cart = [];
-            localStorage.setItem('autoparts_cart', JSON.stringify(cart));
-            renderCart();
-
-            setTimeout(function() { tg.close(); }, 1500);
+            alert('Заказ отправлен! Сумма: ' + total + ' руб.');
+            
+            // Закрываем приложение через 2 секунды
+            setTimeout(function() { tg.close(); }, 2000);
         }
     </script>
 </body>

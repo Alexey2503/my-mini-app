@@ -599,24 +599,49 @@
 
             showToast('Отправляем заказ...');
 
+            // Запоминаем корзину на случай, если sendData выбросит ошибку.
+            var cartBackup = cart.slice();
+            var savedCart = localStorage.getItem('autoparts_cart');
+            var savedPendingOrder = localStorage.getItem(PENDING_ORDER_KEY);
+
             try {
 
-                // Отправляем заказ боту.
-                // Telegram сам закроет Mini App.
+                // sendData передаёт заказ Telegram и закрывает Mini App.
+                // После успешного вызова очищаем старую корзину, чтобы при
+                // следующем открытии магазина товары прошлого заказа
+                // не добавлялись к новому заказу повторно.
+                cart = [];
+                localStorage.removeItem('autoparts_cart');
+                localStorage.removeItem(PENDING_ORDER_KEY);
+                saveCart();
+                renderCart();
+
                 tg.sendData(jsonData);
 
             }
             catch (error) {
+
+                // Если отправка не удалась, восстанавливаем корзину.
+                cart = cartBackup;
+
+                if (savedCart !== null) {
+                    localStorage.setItem('autoparts_cart', savedCart);
+                } else {
+                    localStorage.removeItem('autoparts_cart');
+                }
+
+                if (savedPendingOrder !== null) {
+                    localStorage.setItem(PENDING_ORDER_KEY, savedPendingOrder);
+                }
+
+                saveCart();
+                renderCart();
 
                 isSending = false;
 
                 document.getElementById(
                     'checkout-button'
                 ).disabled = false;
-
-                // sendData не был вызван успешно, поэтому этот ключ
-                // можно удалить. Следующая попытка создаст новый.
-                localStorage.removeItem(PENDING_ORDER_KEY);
 
                 alert(
                     'Ошибка отправки заказа: ' + error.message
